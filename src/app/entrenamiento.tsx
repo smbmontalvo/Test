@@ -135,7 +135,7 @@ export default function ActiveWorkoutScreen() {
         options={{
           title: formatClock((now - active.startedAt) / 1000),
           headerRight: () => (
-            <Pressable onPress={finish} hitSlop={8}>
+            <Pressable onPress={finish} hitSlop={8} style={{ paddingHorizontal: spacing.sm }}>
               <Text style={styles.finishText}>Terminar</Text>
             </Pressable>
           ),
@@ -147,6 +147,8 @@ export default function ActiveWorkoutScreen() {
           onChangeText={(name) => updateActive((w): Workout => ({ ...w, name }))}
           style={styles.title}
           placeholderTextColor={colors.muted}
+          multiline
+          submitBehavior="blurAndSubmit"
         />
         <Text style={styles.summary}>
           {completedSets(active)} series · {formatNumber(workoutVolume(active))} kg
@@ -194,6 +196,7 @@ export default function ActiveWorkoutScreen() {
                   />
                   <Pressable
                     onPress={() => toggleDone(exIndex, setIndex)}
+                    accessibilityLabel={`Marcar serie ${setIndex + 1} como hecha`}
                     style={[styles.check, s.done && styles.checkDone, styles.colAction]}
                   >
                     <Ionicons name="checkmark" size={20} color={s.done ? colors.primaryText : colors.muted} />
@@ -254,7 +257,7 @@ const styles = StyleSheet.create({
   tableHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.xs },
   th: { color: colors.muted, fontSize: 12, fontWeight: '700', textAlign: 'center' },
   colIndex: { width: 44, alignItems: 'center' },
-  colInput: { flex: 1 },
+  colInput: { flex: 1, minWidth: 0 },
   colAction: { width: 44 },
   setRow: {
     flexDirection: 'row',

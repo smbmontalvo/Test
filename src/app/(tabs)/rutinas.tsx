@@ -82,6 +82,7 @@ const styles = StyleSheet.create({
   newRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.lg },
   input: {
     flex: 1,
+    minWidth: 0,
     backgroundColor: colors.card,
     color: colors.text,
     borderRadius: radius.md,

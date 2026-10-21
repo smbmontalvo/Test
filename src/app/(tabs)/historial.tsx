@@ -22,7 +22,7 @@ export default function HistoryScreen() {
           <View style={styles.statsRow}>
             <Stat icon="trophy" label="Entrenos" value={String(history.length)} />
             <Stat icon="barbell" label="Kg totales" value={formatNumber(totalVolume)} />
-            <Stat icon="time" label="Horas" value={(totalTime / 3600000).toFixed(1)} />
+            <Stat icon="time" label="Horas" value={(totalTime / 3600000).toFixed(1).replace('.', ',')} />
           </View>
         ) : undefined
       }
