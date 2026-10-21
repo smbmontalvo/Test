@@ -13,6 +13,7 @@ import { exerciseProgress, recordsBroken, type ExerciseProgress } from '../utils
 import { hasSchedule, todayPlan } from '../utils/schedule';
 import { formatLongDate, formatNumber, formatWeight, weekStreak, workoutVolume } from '../utils/stats';
 import { useScreenInsets } from '../hooks/useScreenInsets';
+import { TopBar } from '../components/TopBar';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -34,6 +35,7 @@ export default function EncouragementScreen() {
     return (
       <ScrollView contentContainerStyle={[styles.container, { paddingTop: inset.top + spacing.lg, paddingBottom: inset.bottom + 40 }]}
       scrollIndicatorInsets={{ top: inset.top, bottom: inset.bottom }}>
+        <TopBar />
         <View style={styles.hero}>
           <Text style={styles.heroEyebrow}>Todo empieza por uno</Text>
           <Text style={styles.heroTitle}>El primer entrenamiento es el más difícil</Text>
@@ -68,6 +70,7 @@ export default function EncouragementScreen() {
   return (
     <ScrollView contentContainerStyle={[styles.container, { paddingTop: inset.top + spacing.lg, paddingBottom: inset.bottom + 40 }]}
       scrollIndicatorInsets={{ top: inset.top, bottom: inset.bottom }}>
+      <TopBar />
       <View style={styles.hero} accessible accessibilityRole="header">
         <Text style={styles.heroEyebrow}>Mira lo lejos que has llegado</Text>
         <Text style={styles.heroTitle}>{headline}</Text>

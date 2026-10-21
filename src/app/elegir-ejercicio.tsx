@@ -12,6 +12,7 @@ import { useScreenInsets } from '../hooks/useScreenInsets';
 import { useGym } from '../store/GymContext';
 import { colors, radius, spacing } from '../theme';
 import { searchExercises } from '../utils/search';
+import { TopBar } from '../components/TopBar';
 
 // Modal exercise picker. With ?rutina=<id> it adds to that routine,
 // otherwise it adds to the workout in progress.
@@ -52,6 +53,7 @@ export default function ExercisePickerScreen() {
       ItemSeparatorComponent={() => <View style={{ height: spacing.sm }} />}
       ListHeaderComponent={
         <View style={styles.header}>
+          <TopBar />
           <SearchBar value={query} onChangeText={setQuery} placeholder="Busca por nombre, músculo o equipo" autoFocus />
           <PressScale
             onPress={create}

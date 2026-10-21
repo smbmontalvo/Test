@@ -9,6 +9,7 @@ import { useGym } from '../../store/GymContext';
 import { colors, radius, spacing } from '../../theme';
 import { useScreenInsets } from '../../hooks/useScreenInsets';
 import { smoothLayout } from '../../components/motion';
+import { TopBar } from '../../components/TopBar';
 
 export default function RoutineEditScreen() {
   const inset = useScreenInsets();
@@ -48,6 +49,7 @@ export default function RoutineEditScreen() {
   return (
     <ScrollView contentContainerStyle={[styles.container, { paddingTop: inset.top + spacing.lg, paddingBottom: inset.bottom + 40 }]}
       scrollIndicatorInsets={{ top: inset.top, bottom: inset.bottom }} keyboardShouldPersistTaps="handled">
+      <TopBar />
       <Text style={styles.label}>Nombre</Text>
       <TextInput
         value={routine.name}

@@ -35,6 +35,7 @@ import {
 } from '../../utils/stats';
 import { useScreenInsets } from '../../hooks/useScreenInsets';
 import { FadeInUp } from '../../components/motion';
+import { TopBar } from '../../components/TopBar';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -79,6 +80,7 @@ export default function WorkoutDetailScreen() {
   return (
     <ScrollView contentContainerStyle={[styles.container, { paddingTop: inset.top + spacing.lg, paddingBottom: inset.bottom + 48 }]}
       scrollIndicatorInsets={{ top: inset.top, bottom: inset.bottom }}>
+      <TopBar />
       <View style={styles.hero}>
         <View style={styles.heroEyebrowRow}>
           <Ionicons name="calendar" size={16} color={colors.primaryText} />

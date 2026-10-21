@@ -1,5 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { router, Stack } from 'expo-router';
+import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
   KeyboardAvoidingView,
@@ -15,7 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { showAlert } from '../components/Dialog';
 import { FadeInUp, haptic, PressScale, smoothLayout } from '../components/motion';
-import { ProfileButton } from '../components/ProfileButton';
+import { TopBar } from '../components/TopBar';
 import { Button, Card, EmptyState, IconButton } from '../components/ui';
 import { getExercise } from '../data/exercises';
 import { useGym } from '../store/GymContext';
@@ -143,20 +143,15 @@ export default function ActiveWorkoutScreen() {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <Stack.Screen
-        options={{
-          headerRight: () => (
-            <View style={styles.headerRight}>
-              <Pressable onPress={finish} hitSlop={8} style={styles.finishButton}>
-                <Text style={styles.finishText}>Terminar</Text>
-              </Pressable>
-              <ProfileButton />
-            </View>
-          ),
-        }}
-      />
       <ScrollView contentContainerStyle={[styles.container, { paddingTop: inset.top + spacing.lg, paddingBottom: inset.bottom + 120 }]}
       scrollIndicatorInsets={{ top: inset.top, bottom: inset.bottom }} keyboardShouldPersistTaps="handled">
+        <TopBar
+          right={
+            <PressScale onPress={finish} hitSlop={8} accessibilityRole="button" style={styles.finishButton}>
+              <Text style={styles.finishText}>Terminar</Text>
+            </PressScale>
+          }
+        />
         <TextInput
           value={active.name}
           onChangeText={(name) => updateActive((w): Workout => ({ ...w, name }))}
@@ -272,13 +267,11 @@ export default function ActiveWorkoutScreen() {
 
 const styles = StyleSheet.create({
   container: { padding: spacing.lg, paddingBottom: 120 },
-  headerRight: { flexDirection: 'row', alignItems: 'center' },
   finishButton: {
     backgroundColor: colors.accentSoft,
     paddingVertical: 6,
     paddingHorizontal: spacing.md,
     borderRadius: radius.pill,
-    marginHorizontal: spacing.sm,
   },
   finishText: { color: colors.accent, fontWeight: '700', fontSize: 14 },
   title: { color: colors.text, fontSize: 24, fontWeight: '800', padding: 0 },

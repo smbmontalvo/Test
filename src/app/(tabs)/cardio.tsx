@@ -74,7 +74,7 @@ export default function CardioScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView
-        contentContainerStyle={[styles.container, { paddingTop: inset.top + spacing.xs, paddingBottom: inset.bottom + 40 }]}
+        contentContainerStyle={[styles.container, { paddingTop: inset.top + spacing.lg, paddingBottom: inset.bottom + 40 }]}
         scrollIndicatorInsets={{ top: inset.top, bottom: inset.bottom }}
         keyboardShouldPersistTaps="handled"
       >

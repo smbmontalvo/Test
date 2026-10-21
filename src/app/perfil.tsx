@@ -9,6 +9,7 @@ import { Button } from '../components/ui';
 import { useGym } from '../store/GymContext';
 import { colors, radius, spacing } from '../theme';
 import { useScreenInsets } from '../hooks/useScreenInsets';
+import { TopBar } from '../components/TopBar';
 
 export default function ProfileScreen() {
   const inset = useScreenInsets();
@@ -44,6 +45,7 @@ export default function ProfileScreen() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={[styles.container, { paddingTop: inset.top + spacing.xl, paddingBottom: inset.bottom + spacing.xl }]}
       scrollIndicatorInsets={{ top: inset.top, bottom: inset.bottom }} keyboardShouldPersistTaps="handled">
+        <TopBar />
         <View style={styles.photoBlock}>
           <Avatar profile={{ name, alias, photo }} size={112} />
           <View style={styles.photoActions}>

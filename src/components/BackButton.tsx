@@ -8,8 +8,8 @@ import { haptic, Pop, PressScale } from './motion';
 
 const NATIVE = Platform.OS !== 'web';
 
-// Round back button that matches the profile avatar: it pops in with the
-// screen, sinks when pressed and nudges its arrow left before going back.
+// Round back button with a translucent ring: it pops in with the screen,
+// sinks when pressed and nudges its arrow left before going back.
 export function BackButton() {
   const nudge = useRef(new Animated.Value(0)).current;
 
@@ -46,7 +46,6 @@ export function BackButton() {
 
 const styles = StyleSheet.create({
   shadow: {
-    marginHorizontal: 12,
     borderRadius: radius.pill,
     shadowColor: '#14161B',
     shadowOpacity: 0.15,
@@ -54,7 +53,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
   },
-  // Same translucent ring as the profile button.
   ring: {
     padding: 3,
     borderRadius: radius.pill,

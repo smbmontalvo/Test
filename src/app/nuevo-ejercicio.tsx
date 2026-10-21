@@ -8,6 +8,7 @@ import { useGym } from '../store/GymContext';
 import { colors, radius, spacing } from '../theme';
 import type { MuscleGroup } from '../types';
 import { useScreenInsets } from '../hooks/useScreenInsets';
+import { TopBar } from '../components/TopBar';
 
 const OTHER = 'Otro';
 
@@ -46,6 +47,7 @@ export default function NewExerciseScreen() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={[styles.container, { paddingTop: inset.top + spacing.xl, paddingBottom: inset.bottom + spacing.xl }]}
       scrollIndicatorInsets={{ top: inset.top, bottom: inset.bottom }} keyboardShouldPersistTaps="handled">
+        <TopBar />
         <View style={styles.field}>
           <Text style={styles.label} nativeID="label-exercise-name">
             Nombre
