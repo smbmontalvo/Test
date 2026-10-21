@@ -68,7 +68,7 @@ export default function EncouragementScreen() {
       </View>
 
       <View style={styles.totals}>
-        <Total icon="checkmark-done" value={String(history.length)} label="entrenamientos completados" />
+        <Total icon="checkmark-done" value={String(history.length)} label="sesiones completadas" />
         <Total icon="barbell-outline" value={formatNumber(totalKg)} label="kg levantados en total" />
         <Total icon="time-outline" value={totalHours.toFixed(1).replace('.', ',')} label="horas invertidas en ti" />
       </View>
