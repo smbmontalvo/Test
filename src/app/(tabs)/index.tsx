@@ -9,7 +9,6 @@ import { WEEK_DAYS } from '../../components/DayPicker';
 import { TodayChecklist } from '../../components/TodayChecklist';
 import { Button, Card } from '../../components/ui';
 import { getExercise } from '../../data/exercises';
-import { useStartWorkout } from '../../hooks/useStartWorkout';
 import { useGym } from '../../store/GymContext';
 import { colors, radius, spacing } from '../../theme';
 import type { Workout } from '../../types';
@@ -44,8 +43,7 @@ function bestSets(w: Workout, limit: number) {
 }
 
 export default function HomeScreen() {
-  const { profile, history, routines, active, setExerciseDone, closeStaleWorkout } = useGym();
-  const startWorkout = useStartWorkout();
+  const { profile, history, routines, active, startWorkout, setExerciseDone, closeStaleWorkout } = useGym();
   const insets = useSafeAreaInsets();
 
   const now = useToday();
@@ -118,14 +116,26 @@ export default function HomeScreen() {
             </Text>
           )}
         </View>
-      ) : todayRoutine ? (
+      ) : todayRoutine && activeIsToday ? (
         <TodayChecklist
           routine={todayRoutine}
           dayName={DAYS[today].long}
-          workout={activeIsToday ? active : undefined}
+          workout={active}
           history={history}
           onToggle={(exerciseId, done) => setExerciseDone(todayRoutine.id, exerciseId, done)}
-          onOpenExercise={() => (activeIsToday ? router.push('/entrenamiento') : startWorkout(todayRoutine.id))}
+          onOpenExercise={() => router.push('/entrenamiento')}
+        />
+      ) : todayRoutine ? (
+        // Before starting, today's plan is a single call to action; the
+        // exercise list appears once the workout has begun.
+        <HeroCard
+          eyebrow={`Hoy toca · ${DAYS[today].long}`}
+          icon="calendar"
+          title={todayRoutine.name}
+          meta={plannedMeta(todayRoutine.exerciseIds.length, history, todayRoutine.id)}
+          action="Iniciar entrenamiento"
+          actionLabel={`Iniciar entrenamiento de ${todayRoutine.name}`}
+          onPress={() => startWorkout(todayRoutine.id)}
         />
       ) : hasPlan ? (
         <View style={styles.restCard}>
@@ -355,6 +365,13 @@ function Metric({ icon, value, label }: { icon: IconName; value: string; label: 
       <Text style={styles.metricLabel}>{label}</Text>
     </View>
   );
+}
+
+function plannedMeta(exerciseCount: number, history: Workout[], routineId: string): string {
+  const past = history.filter((w) => w.routineId === routineId && w.finishedAt);
+  const parts = [`${exerciseCount} ejercicios`];
+  if (past.length > 0) parts.push(`unos ${formatDuration(past.reduce((acc, w) => acc + duration(w), 0) / past.length)}`);
+  return parts.join(' · ');
 }
 
 function capitalize(s: string) {
