@@ -31,7 +31,7 @@ import {
   workoutVolume,
 } from '../../utils/stats';
 import { useScreenInsets } from '../../hooks/useScreenInsets';
-import { FadeInUp, PressScale } from '../../components/motion';
+import { CountUp, FadeInUp, PressScale } from '../../components/motion';
 
 type WeekSection = {
   key: string;
@@ -123,18 +123,19 @@ function MonthSummary({ history, records, now }: { history: Workout[]; records: 
           </Text>
           <View style={styles.figures}>
             {volume > 0 ? (
-              <Figure value={formatNumber(volume)} label="kg levantados" spoken={`${formatNumber(volume)} kilos levantados`} />
+              <Figure amount={volume} format={(n) => formatNumber(Math.round(n))} label="kg levantados" spoken={`${formatNumber(volume)} kilos levantados`} />
             ) : (
-              <Figure value={formatNumber(month.reduce((acc, w) => acc + totalReps(w), 0))} label="repeticiones" />
+              <Figure amount={month.reduce((acc, w) => acc + totalReps(w), 0)} format={(n) => formatNumber(Math.round(n))} label="repeticiones" />
             )}
             <View style={styles.figureDivider} />
             <Figure
-              value={(time / 3600000).toFixed(1).replace('.', ',')}
+              amount={time / 3600000}
+              format={(n) => n.toFixed(1).replace('.', ',')}
               label="horas entrenando"
               spoken={`${formatDuration(time)} entrenando`}
             />
             <View style={styles.figureDivider} />
-            <Figure value={String(prs)} label={prs === 1 ? 'récord' : 'récords'} />
+            <Figure amount={prs} label={prs === 1 ? 'récord' : 'récords'} />
           </View>
         </>
       ) : (
@@ -155,10 +156,21 @@ function MonthSummary({ history, records, now }: { history: Workout[]; records: 
   );
 }
 
-function Figure({ value, label, spoken }: { value: string; label: string; spoken?: string }) {
+function Figure({
+  amount,
+  format = (n) => String(Math.round(n)),
+  label,
+  spoken,
+}: {
+  amount: number;
+  format?: (n: number) => string;
+  label: string;
+  spoken?: string;
+}) {
+  const value = format(amount);
   return (
     <View style={styles.figure} accessible accessibilityLabel={spoken ?? `${value} ${label}`}>
-      <Text style={styles.figureValue}>{value}</Text>
+      <CountUp value={amount} format={format} style={styles.figureValue} />
       <Text style={styles.figureLabel}>{label}</Text>
     </View>
   );

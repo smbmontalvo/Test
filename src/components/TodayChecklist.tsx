@@ -1,13 +1,13 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useEffect, useRef } from 'react';
-import { Animated, Easing, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { getExercise } from '../data/exercises';
 import { buildExercise } from '../store/GymContext';
 import { colors, radius, spacing } from '../theme';
 import type { Routine, Workout, WorkoutExercise } from '../types';
 import { formatWeight, toNumber } from '../utils/stats';
-import { FadeInUp, haptic, Pop, PressScale } from './motion';
+import { EASE, FadeInUp, haptic, Pop, PressScale } from './motion';
 
 function setSummary(e: WorkoutExercise): string {
   const n = e.sets.length;
@@ -44,7 +44,7 @@ export function TodayChecklist({
     Animated.timing(progress, {
       toValue: exercises.length ? doneCount / exercises.length : 0,
       duration: 420,
-      easing: Easing.out(Easing.cubic),
+      easing: EASE,
       useNativeDriver: false,
     }).start();
   }, [doneCount, exercises.length, progress]);
@@ -89,25 +89,14 @@ export function TodayChecklist({
                 <Text style={[styles.name, done && styles.nameDone]}>{name}</Text>
                 <Text style={styles.summary}>{setSummary(e)}</Text>
               </Pressable>
-              <PressScale
+              <ReadyToggle
+                done={done}
+                label={`${name} listo`}
                 onPress={() => {
                   haptic.tap();
                   onToggle(e.exerciseId, !done);
                 }}
-                pressedScale={0.9}
-                hitSlop={8}
-                accessibilityRole="checkbox"
-                accessibilityState={{ checked: done }}
-                accessibilityLabel={`${name} listo`}
-                style={[styles.ready, done && styles.readyDone]}
-              >
-                {done && (
-                  <Pop visible={done}>
-                    <Ionicons name="checkmark" size={16} color={colors.card} />
-                  </Pop>
-                )}
-                <Text style={[styles.readyText, done && styles.readyTextDone]}>Listo</Text>
-              </PressScale>
+              />
             </FadeInUp>
           );
         })}
@@ -115,6 +104,36 @@ export function TodayChecklist({
 
       <Text style={styles.hint}>Al marcar el último ejercicio, el entrenamiento se guarda solo.</Text>
     </View>
+  );
+}
+
+// "Listo" pill whose fill and text color blend smoothly between states.
+function ReadyToggle({ done, label, onPress }: { done: boolean; label: string; onPress: () => void }) {
+  const t = useRef(new Animated.Value(done ? 1 : 0)).current;
+  useEffect(() => {
+    Animated.timing(t, { toValue: done ? 1 : 0, duration: 260, easing: EASE, useNativeDriver: false }).start();
+  }, [done, t]);
+  const backgroundColor = t.interpolate({ inputRange: [0, 1], outputRange: [colors.accentSoft, colors.accent] });
+  const color = t.interpolate({ inputRange: [0, 1], outputRange: [colors.accent, colors.card] });
+
+  return (
+    <PressScale
+      onPress={onPress}
+      pressedScale={0.9}
+      hitSlop={8}
+      accessibilityRole="checkbox"
+      accessibilityState={{ checked: done }}
+      accessibilityLabel={label}
+    >
+      <Animated.View style={[styles.ready, { backgroundColor }]}>
+        {done && (
+          <Pop visible>
+            <Ionicons name="checkmark" size={16} color={colors.card} />
+          </Pop>
+        )}
+        <Animated.Text style={[styles.readyText, { color }]}>Listo</Animated.Text>
+      </Animated.View>
+    </PressScale>
   );
 }
 
@@ -162,8 +181,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
     backgroundColor: colors.accentSoft,
   },
-  readyDone: { backgroundColor: colors.accent },
   readyText: { color: colors.accent, fontWeight: '800', fontSize: 14 },
-  readyTextDone: { color: colors.card },
   hint: { color: colors.primaryText, fontSize: 13, opacity: 0.75, paddingHorizontal: spacing.sm, marginTop: spacing.xs },
 });

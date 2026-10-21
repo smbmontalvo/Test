@@ -1,11 +1,11 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useEffect, useRef } from 'react';
-import { Animated, Easing, Platform, StyleSheet, Text, View } from 'react-native';
+import { Animated, Platform, StyleSheet, Text, View } from 'react-native';
 
 import { colors, radius, spacing } from '../theme';
 import { formatKm, type CardioWeek } from '../utils/cardio';
 import { WEEK_DAYS } from './DayPicker';
-import { useReduceMotion } from './motion';
+import { EASE, CountUp, useReduceMotion } from './motion';
 
 const BAR_AREA = 56;
 const NATIVE = Platform.OS !== 'web';
@@ -39,7 +39,7 @@ export function CardioWeekSummary({
       return;
     }
     Animated.parallel([
-      Animated.timing(fill, { toValue: ratio, duration: 700, easing: Easing.out(Easing.cubic), useNativeDriver: false }),
+      Animated.timing(fill, { toValue: ratio, duration: 700, easing: EASE, useNativeDriver: false }),
       Animated.stagger(
         60,
         bars.map((b) =>
@@ -64,7 +64,7 @@ export function CardioWeekSummary({
       <View style={styles.top}>
         <View style={{ flex: 1 }}>
           <Text style={[styles.big, { color: ink }]}>
-            {week.minutes}
+            <CountUp value={week.minutes} />
             <Text style={[styles.of, { color: soft }]}> / {goal} min</Text>
           </Text>
           <Text style={[styles.caption, { color: soft }]}>

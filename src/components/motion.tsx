@@ -4,16 +4,42 @@ import {
   AccessibilityInfo,
   Animated,
   Easing,
+  LayoutAnimation,
   Platform,
   Pressable,
   StyleSheet,
+  Text,
   View,
+  type TextStyle,
   type PressableProps,
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
 
 const NATIVE = Platform.OS !== 'web';
+
+// One shared curve for the whole app: quick start, long soft landing.
+export const EASE = Easing.bezier(0.22, 1, 0.36, 1);
+
+// Module-level copy of the system Reduce Motion setting, for helpers that run
+// outside React components (like smoothLayout).
+let reduceMotionNow = false;
+AccessibilityInfo.isReduceMotionEnabled()
+  .then((v) => (reduceMotionNow = v))
+  .catch(() => {});
+AccessibilityInfo.addEventListener('reduceMotionChanged', (v) => (reduceMotionNow = v));
+
+// Call right before a state change that adds, removes or reorders items, so
+// the surrounding layout glides into place instead of jumping.
+export function smoothLayout(duration = 280) {
+  if (reduceMotionNow) return;
+  LayoutAnimation.configureNext({
+    duration,
+    create: { type: LayoutAnimation.Types.easeInEaseOut, property: LayoutAnimation.Properties.opacity },
+    update: { type: LayoutAnimation.Types.spring, springDamping: 0.85 },
+    delete: { type: LayoutAnimation.Types.easeInEaseOut, property: LayoutAnimation.Properties.opacity },
+  });
+}
 
 export function useReduceMotion(): boolean {
   const [reduce, setReduce] = useState(false);
@@ -91,9 +117,9 @@ export function FadeInUp({
     }
     const anim = Animated.timing(progress, {
       toValue: 1,
-      duration: 460,
+      duration: 560,
       delay,
-      easing: Easing.out(Easing.cubic),
+      easing: EASE,
       useNativeDriver: NATIVE,
     });
     anim.start();
@@ -101,21 +127,77 @@ export function FadeInUp({
   }, [delay, reduce, progress]);
 
   const translateY = progress.interpolate({ inputRange: [0, 1], outputRange: [distance, 0] });
-  return <Animated.View style={[style, { opacity: progress, transform: [{ translateY }] }]}>{children}</Animated.View>;
+  const scale = progress.interpolate({ inputRange: [0, 1], outputRange: [0.985, 1] });
+  return (
+    <Animated.View style={[style, { opacity: progress, transform: [{ translateY }, { scale }] }]}>{children}</Animated.View>
+  );
 }
 
 // Scales its child in with a little overshoot whenever `visible` turns on.
-export function Pop({ visible, children, style }: { visible: boolean; children: ReactNode; style?: StyleProp<ViewStyle> }) {
+export function Pop({
+  visible,
+  delay = 0,
+  children,
+  style,
+}: {
+  visible: boolean;
+  delay?: number;
+  children: ReactNode;
+  style?: StyleProp<ViewStyle>;
+}) {
   const scale = useRef(new Animated.Value(0)).current;
   useEffect(() => {
-    Animated.spring(scale, {
-      toValue: visible ? 1 : 0,
-      useNativeDriver: NATIVE,
-      speed: 18,
-      bounciness: visible ? 14 : 0,
-    }).start();
-  }, [visible, scale]);
+    Animated.sequence([
+      Animated.delay(visible ? delay : 0),
+      Animated.spring(scale, {
+        toValue: visible ? 1 : 0,
+        useNativeDriver: NATIVE,
+        speed: 18,
+        bounciness: visible ? 14 : 0,
+      }),
+    ]).start();
+  }, [visible, delay, scale]);
   return <Animated.View style={[style, { transform: [{ scale }] }]}>{children}</Animated.View>;
+}
+
+// A number that counts up (or down) to its value with the shared easing.
+export function CountUp({
+  value,
+  format = (n) => String(Math.round(n)),
+  duration = 900,
+  delay = 0,
+  style,
+}: {
+  value: number;
+  format?: (n: number) => string;
+  duration?: number;
+  delay?: number;
+  style?: StyleProp<TextStyle>;
+}) {
+  const reduce = useReduceMotion();
+  const anim = useRef(new Animated.Value(0)).current;
+  const [shown, setShown] = useState(reduce ? value : 0);
+
+  useEffect(() => {
+    if (reduce) {
+      anim.setValue(value);
+      setShown(value);
+      return;
+    }
+    const id = anim.addListener(({ value: v }) => setShown(v));
+    const a = Animated.timing(anim, { toValue: value, duration, delay, easing: EASE, useNativeDriver: false });
+    a.start(() => setShown(value));
+    return () => {
+      a.stop();
+      anim.removeListener(id);
+    };
+  }, [value, duration, delay, reduce, anim]);
+
+  return (
+    <Text style={style} accessibilityLabel={format(value)}>
+      {format(shown)}
+    </Text>
+  );
 }
 
 // A one-off burst of small dots radiating from the center, for celebrations.

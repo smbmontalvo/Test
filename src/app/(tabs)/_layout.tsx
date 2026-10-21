@@ -25,6 +25,8 @@ export default function TabsLayout() {
           headerTransparent: true,
           headerStyle: { backgroundColor: 'transparent' },
           headerTitle: '',
+          // Content slides a touch when switching tabs.
+          animation: 'shift',
           headerTintColor: colors.text,
           headerShadowVisible: false,
           headerTitleStyle: { fontWeight: '800' },

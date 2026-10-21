@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type ComponentProps } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { WEEK_DAYS } from '../../components/DayPicker';
-import { Burst, FadeInUp, haptic, Pop, PressScale } from '../../components/motion';
+import { Burst, FadeInUp, haptic, Pop, PressScale, smoothLayout } from '../../components/motion';
 import { CardioWeekSummary } from '../../components/CardioWeekSummary';
 import { TodayChecklist } from '../../components/TodayChecklist';
 import { Button, Card } from '../../components/ui';
@@ -131,7 +131,10 @@ export default function HomeScreen() {
           dayName={DAYS[today].long}
           workout={active}
           history={history}
-          onToggle={(exerciseId, done) => setExerciseDone(todayRoutine.id, exerciseId, done)}
+          onToggle={(exerciseId, done) => {
+            smoothLayout(360);
+            setExerciseDone(todayRoutine.id, exerciseId, done);
+          }}
           onOpenExercise={() => router.push('/entrenamiento')}
         />
       ) : todayRoutine ? (
@@ -275,7 +278,7 @@ export default function HomeScreen() {
               >
                 <View style={[styles.dayDot, done && styles.dayDotDone, isToday && !done && styles.dayDotToday]}>
                   {done && (
-                    <Pop visible>
+                    <Pop visible delay={380 + i * 70}>
                       <Ionicons name="checkmark" size={16} color={colors.primaryText} />
                     </Pop>
                   )}

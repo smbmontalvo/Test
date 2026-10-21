@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Platform, StyleSheet, Text, View } from 'react-native';
 
 import { colors } from '../theme';
-import { useReduceMotion } from './motion';
+import { EASE, useReduceMotion } from './motion';
 
 const TICK_WIDTH = 3;
 const TICK_GAP = 3;
@@ -56,7 +56,7 @@ export function TickBar({
     const count = Animated.timing(counter, {
       toValue: percent,
       duration: filled * STAGGER_MS + 260,
-      easing: Easing.out(Easing.cubic),
+      easing: EASE,
       useNativeDriver: false,
     });
     const anim = Animated.sequence([Animated.delay(delay), Animated.parallel([rise, count])]);

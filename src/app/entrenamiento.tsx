@@ -14,7 +14,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { showAlert } from '../components/Dialog';
-import { FadeInUp, haptic, PressScale } from '../components/motion';
+import { FadeInUp, haptic, PressScale, smoothLayout } from '../components/motion';
 import { ProfileButton } from '../components/ProfileButton';
 import { Button, Card, EmptyState, IconButton } from '../components/ui';
 import { getExercise } from '../data/exercises';
@@ -75,6 +75,7 @@ export default function ActiveWorkoutScreen() {
   };
 
   const addSet = (exIndex: number) => {
+    smoothLayout();
     updateActive((w) => ({
       ...w,
       exercises: w.exercises.map((e, i) => {
@@ -86,6 +87,7 @@ export default function ActiveWorkoutScreen() {
   };
 
   const removeSet = (exIndex: number, setIndex: number) => {
+    smoothLayout();
     updateActive((w) => ({
       ...w,
       exercises: w.exercises.map((e, i) =>
@@ -101,7 +103,10 @@ export default function ActiveWorkoutScreen() {
       {
         text: 'Quitar',
         style: 'destructive',
-        onPress: () => updateActive((w) => ({ ...w, exercises: w.exercises.filter((_, i) => i !== exIndex) })),
+        onPress: () => {
+          smoothLayout();
+          updateActive((w) => ({ ...w, exercises: w.exercises.filter((_, i) => i !== exIndex) }));
+        },
       },
     ]);
   };

@@ -5,7 +5,7 @@ import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput
 import { CardioWeekSummary } from '../../components/CardioWeekSummary';
 import { todayIndex } from '../../components/DayPicker';
 import { showAlert } from '../../components/Dialog';
-import { FadeInUp, haptic, Pop, PressScale } from '../../components/motion';
+import { FadeInUp, haptic, Pop, PressScale, smoothLayout } from '../../components/motion';
 import { Button, Card, EmptyState } from '../../components/ui';
 import { CARDIO_ACTIVITIES, getCardioActivity } from '../../data/cardio';
 import { useScreenInsets } from '../../hooks/useScreenInsets';
@@ -41,6 +41,7 @@ export default function CardioScreen() {
 
   const save = () => {
     const km = toNumber(distance);
+    smoothLayout(320);
     addCardio({
       type,
       minutes,
@@ -55,7 +56,14 @@ export default function CardioScreen() {
   const confirmDelete = (s: CardioSession) =>
     showAlert('¿Eliminar sesión?', `${getCardioActivity(s.type).name} de ${s.minutes} min, ${formatRelativeDay(s.date, now).toLowerCase()}.`, [
       { text: 'Cancelar', style: 'cancel' },
-      { text: 'Eliminar', style: 'destructive', onPress: () => deleteCardio(s.id) },
+      {
+        text: 'Eliminar',
+        style: 'destructive',
+        onPress: () => {
+          smoothLayout();
+          deleteCardio(s.id);
+        },
+      },
     ]);
 
   const changeMinutes = (delta: number) => {

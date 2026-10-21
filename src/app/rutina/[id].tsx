@@ -8,6 +8,7 @@ import { getExercise } from '../../data/exercises';
 import { useGym } from '../../store/GymContext';
 import { colors, radius, spacing } from '../../theme';
 import { useScreenInsets } from '../../hooks/useScreenInsets';
+import { smoothLayout } from '../../components/motion';
 
 export default function RoutineEditScreen() {
   const inset = useScreenInsets();
@@ -22,6 +23,7 @@ export default function RoutineEditScreen() {
   const setExercises = (exerciseIds: string[]) => updateRoutine(routine.id, { exerciseIds });
 
   const move = (index: number, delta: number) => {
+    smoothLayout();
     const target = index + delta;
     if (target < 0 || target >= routine.exerciseIds.length) return;
     const next = [...routine.exerciseIds];
@@ -77,7 +79,10 @@ export default function RoutineEditScreen() {
               <IconButton
                 icon="trash-outline"
                 color={colors.danger}
-                onPress={() => setExercises(routine.exerciseIds.filter((x) => x !== exerciseId))}
+                onPress={() => {
+                  smoothLayout();
+                  setExercises(routine.exerciseIds.filter((x) => x !== exerciseId));
+                }}
               />
             </Card>
           );

@@ -24,16 +24,18 @@ export default function RootLayout() {
           headerRight: () => <ProfileButton />,
           headerLeft: ({ canGoBack }) => (canGoBack ? <BackButton /> : null),
           headerBackVisible: false,
+          // Same slide-in on iOS and Android; modals rise from the bottom.
+          animation: 'ios_from_right',
         }}
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="rutina/[id]" options={{ title: 'Editar rutina' }} />
         <Stack.Screen name="workout/[id]" options={{ title: 'Entrenamiento' }} />
         <Stack.Screen name="entrenamiento" options={{ title: 'Entrenamiento', gestureEnabled: false }} />
-        <Stack.Screen name="perfil" options={{ title: 'Tu perfil', presentation: 'modal', headerRight: () => null }} />
+        <Stack.Screen name="perfil" options={{ title: 'Tu perfil', presentation: 'modal', headerRight: () => null, animation: 'slide_from_bottom' }} />
         <Stack.Screen name="animo" options={{ title: 'Tu progreso' }} />
-        <Stack.Screen name="elegir-ejercicio" options={{ title: 'Añadir ejercicio', presentation: 'modal' }} />
-        <Stack.Screen name="nuevo-ejercicio" options={{ title: 'Nuevo ejercicio', presentation: 'modal' }} />
+        <Stack.Screen name="elegir-ejercicio" options={{ title: 'Añadir ejercicio', presentation: 'modal', animation: 'slide_from_bottom' }} />
+        <Stack.Screen name="nuevo-ejercicio" options={{ title: 'Nuevo ejercicio', presentation: 'modal', animation: 'slide_from_bottom' }} />
       </Stack>
       <DialogHost />
     </GymProvider>

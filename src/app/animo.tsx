@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import type { ComponentProps } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { CountUp } from '../components/motion';
 import { TickBar } from '../components/TickBar';
 import { Button, Card } from '../components/ui';
 import { getExercise } from '../data/exercises';
@@ -77,9 +78,9 @@ export default function EncouragementScreen() {
       </View>
 
       <View style={styles.totals}>
-        <Total icon="checkmark-done" value={String(history.length)} label="sesiones completadas" />
-        <Total icon="barbell-outline" value={formatNumber(totalKg)} label="kg levantados en total" />
-        <Total icon="time-outline" value={totalHours.toFixed(1).replace('.', ',')} label="horas invertidas en ti" />
+        <Total icon="checkmark-done" amount={history.length} label="sesiones completadas" />
+        <Total icon="barbell-outline" amount={totalKg} format={(n) => formatNumber(Math.round(n))} label="kg levantados en total" />
+        <Total icon="time-outline" amount={totalHours} format={(n) => n.toFixed(1).replace('.', ',')} label="horas invertidas en ti" />
       </View>
 
       {records > 0 && (
@@ -148,12 +149,23 @@ export default function EncouragementScreen() {
   );
 }
 
-function Total({ icon, value, label }: { icon: IconName; value: string; label: string }) {
+function Total({
+  icon,
+  amount,
+  format = (n) => String(Math.round(n)),
+  label,
+}: {
+  icon: IconName;
+  amount: number;
+  format?: (n: number) => string;
+  label: string;
+}) {
+  const value = format(amount);
   return (
     <Card style={styles.total}>
       <View accessible accessibilityLabel={`${value} ${label}`}>
         <Ionicons name={icon} size={20} color={colors.accent} />
-        <Text style={styles.totalValue}>{value}</Text>
+        <CountUp value={amount} format={format} style={styles.totalValue} />
         <Text style={styles.totalLabel}>{label}</Text>
       </View>
     </Card>

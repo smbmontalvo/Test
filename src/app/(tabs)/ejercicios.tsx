@@ -5,7 +5,7 @@ import { ScrollView, SectionList, StyleSheet, Text, View } from 'react-native';
 
 import { showAlert } from '../../components/Dialog';
 import { ExerciseRow } from '../../components/ExerciseRow';
-import { FadeInUp, PressScale } from '../../components/motion';
+import { FadeInUp, PressScale, smoothLayout } from '../../components/motion';
 import { SearchBar } from '../../components/SearchBar';
 import { Button, EmptyState } from '../../components/ui';
 import { MUSCLE_GROUPS, allExercises } from '../../data/exercises';
@@ -81,7 +81,14 @@ export default function ExercisesScreen() {
   const confirmDelete = (e: Exercise) =>
     showAlert('¿Eliminar ejercicio?', `«${e.name}» se quitará de tus rutinas. Tus entrenamientos pasados no cambian.`, [
       { text: 'Cancelar', style: 'cancel' },
-      { text: 'Eliminar', style: 'destructive', onPress: () => deleteCustomExercise(e.id) },
+      {
+        text: 'Eliminar',
+        style: 'destructive',
+        onPress: () => {
+          smoothLayout();
+          deleteCustomExercise(e.id);
+        },
+      },
     ]);
 
   return (
