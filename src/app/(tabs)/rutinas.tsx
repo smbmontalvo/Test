@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
+import { DayPicker } from '../../components/DayPicker';
 import { Button, Card, EmptyState } from '../../components/ui';
 import { getExercise } from '../../data/exercises';
 import { useStartWorkout } from '../../hooks/useStartWorkout';
@@ -9,7 +10,7 @@ import { useGym } from '../../store/GymContext';
 import { colors, radius, spacing } from '../../theme';
 
 export default function RoutinesScreen() {
-  const { routines, createRoutine } = useGym();
+  const { routines, createRoutine, updateRoutine } = useGym();
   const startWorkout = useStartWorkout();
   const [name, setName] = useState('');
 
@@ -53,6 +54,8 @@ export default function RoutinesScreen() {
               <Text style={styles.exercises} numberOfLines={2}>
                 {names.length > 0 ? names.join(' · ') : 'Sin ejercicios todavía'}
               </Text>
+              <Text style={styles.daysLabel}>Días que la entrenas</Text>
+              <DayPicker value={item.days} onChange={(days) => updateRoutine(item.id, { days })} />
               <View style={styles.actions}>
                 <Button
                   title="Editar"
@@ -95,5 +98,6 @@ const styles = StyleSheet.create({
   card: { gap: spacing.sm },
   name: { color: colors.text, fontSize: 18, fontWeight: '700' },
   exercises: { color: colors.muted, fontSize: 14 },
+  daysLabel: { color: colors.muted, fontSize: 13, fontWeight: '700', marginTop: spacing.xs },
   actions: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.xs },
 });

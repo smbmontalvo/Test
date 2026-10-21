@@ -24,6 +24,7 @@ type GymContextValue = GymState & {
   updateActive: (fn: (w: Workout) => Workout) => void;
   addExerciseToActive: (exerciseId: string) => void;
   finishWorkout: () => Workout | null;
+  setExerciseDone: (routineId: string, exerciseId: string, done: boolean) => void;
   discardWorkout: () => void;
   deleteWorkout: (id: string) => void;
 };
@@ -32,7 +33,7 @@ const GymContext = createContext<GymContextValue | null>(null);
 
 // Pre-fill a new exercise with the completed sets from the last time it was
 // trained, so the user only has to confirm or tweak the numbers.
-function buildExercise(history: Workout[], exerciseId: string): WorkoutExercise {
+export function buildExercise(history: Workout[], exerciseId: string): WorkoutExercise {
   for (const w of history) {
     const prev = w.exercises.find((e) => e.exerciseId === exerciseId);
     const done = prev?.sets.filter((s) => s.done) ?? [];
@@ -44,6 +45,26 @@ function buildExercise(history: Workout[], exerciseId: string): WorkoutExercise 
   return { exerciseId, sets: Array.from({ length: DEFAULT_SETS }, () => ({ ...empty })) };
 }
 
+// Data saved before routines had weekdays: give the built-in routines their default days.
+function withDefaultDays(state: GymState): GymState {
+  const defaults = new Map(DEFAULT_ROUTINES.map((r) => [r.id, r.days]));
+  return {
+    ...state,
+    routines: state.routines.map((r) => (r.days === undefined && defaults.has(r.id) ? { ...r, days: defaults.get(r.id) } : r)),
+  };
+}
+
+// Keep only completed sets and stamp the finish time.
+function finalize(w: Workout): Workout {
+  return {
+    ...w,
+    finishedAt: Date.now(),
+    exercises: w.exercises
+      .map((e) => ({ ...e, sets: e.sets.filter((set) => set.done) }))
+      .filter((e) => e.sets.length > 0),
+  };
+}
+
 export function GymProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<GymState>(initialState);
   const [loaded, setLoaded] = useState(false);
@@ -51,7 +72,7 @@ export function GymProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     AsyncStorage.getItem(STORAGE_KEY)
       .then((raw) => {
-        if (raw) setState({ ...initialState, ...(JSON.parse(raw) as Partial<GymState>) });
+        if (raw) setState(withDefaultDays({ ...initialState, ...(JSON.parse(raw) as Partial<GymState>) }));
       })
       .catch((err) => console.warn('No se pudieron cargar los datos', err))
       .finally(() => setLoaded(true));
@@ -112,16 +133,35 @@ export function GymProvider({ children }: { children: ReactNode }) {
 
   const finishWorkout = useCallback(() => {
     if (!state.active) return null;
-    const finished: Workout = {
-      ...state.active,
-      finishedAt: Date.now(),
-      exercises: state.active.exercises
-        .map((e) => ({ ...e, sets: e.sets.filter((set) => set.done) }))
-        .filter((e) => e.sets.length > 0),
-    };
+    const finished = finalize(state.active);
     setState((s) => ({ ...s, active: null, history: [finished, ...s.history] }));
     return finished;
   }, [state.active]);
+
+  // Quick logging from the home checklist: marks every set of one exercise.
+  // Starts the routine's workout on first use and saves it once all are done.
+  const setExerciseDone = useCallback((routineId: string, exerciseId: string, done: boolean) => {
+    setState((s) => {
+      const routine = s.routines.find((r) => r.id === routineId);
+      if (!routine) return s;
+      if (s.active && s.active.routineId !== routineId) return s;
+      const base: Workout = s.active ?? {
+        id: newId(),
+        name: routine.name,
+        routineId,
+        startedAt: Date.now(),
+        exercises: routine.exerciseIds.map((id) => buildExercise(s.history, id)),
+      };
+      const next: Workout = {
+        ...base,
+        exercises: base.exercises.map((e) =>
+          e.exerciseId === exerciseId ? { ...e, sets: e.sets.map((set) => ({ ...set, done })) } : e,
+        ),
+      };
+      const allDone = next.exercises.length > 0 && next.exercises.every((e) => e.sets.every((set) => set.done));
+      return allDone ? { ...s, active: null, history: [finalize(next), ...s.history] } : { ...s, active: next };
+    });
+  }, []);
 
   const discardWorkout = useCallback(() => {
     setState((s) => ({ ...s, active: null }));
@@ -141,6 +181,7 @@ export function GymProvider({ children }: { children: ReactNode }) {
       updateActive,
       addExerciseToActive,
       finishWorkout,
+      setExerciseDone,
       discardWorkout,
       deleteWorkout,
     }),
@@ -153,6 +194,7 @@ export function GymProvider({ children }: { children: ReactNode }) {
       updateActive,
       addExerciseToActive,
       finishWorkout,
+      setExerciseDone,
       discardWorkout,
       deleteWorkout,
     ],

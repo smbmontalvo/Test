@@ -62,15 +62,18 @@ export const DEFAULT_ROUTINES: Routine[] = [
     id: 'default-push',
     name: 'Empuje (Pecho, Hombro, Tríceps)',
     exerciseIds: ['bench-press', 'incline-db-press', 'overhead-press', 'lateral-raise', 'triceps-pushdown'],
+    days: [0, 3],
   },
   {
     id: 'default-pull',
     name: 'Tirón (Espalda, Bíceps)',
     exerciseIds: ['deadlift', 'pull-up', 'barbell-row', 'face-pull', 'barbell-curl'],
+    days: [1, 4],
   },
   {
     id: 'default-legs',
     name: 'Pierna',
     exerciseIds: ['squat', 'romanian-deadlift', 'leg-press', 'leg-curl', 'calf-raise'],
+    days: [2, 5],
   },
 ];

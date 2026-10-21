@@ -2,6 +2,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { showAlert } from '../../components/Dialog';
+import { DayPicker, formatDays } from '../../components/DayPicker';
 import { Button, Card, EmptyState, IconButton, SectionTitle } from '../../components/ui';
 import { getExercise } from '../../data/exercises';
 import { useStartWorkout } from '../../hooks/useStartWorkout';
@@ -53,6 +54,12 @@ export default function RoutineEditScreen() {
         placeholderTextColor={colors.muted}
       />
 
+      <SectionTitle>Días de entrenamiento</SectionTitle>
+      <Card style={{ gap: spacing.md }}>
+        <DayPicker value={routine.days} onChange={(days) => updateRoutine(routine.id, { days })} />
+        <Text style={styles.daysHint}>{formatDays(routine.days)}</Text>
+      </Card>
+
       <SectionTitle>Ejercicios ({routine.exerciseIds.length})</SectionTitle>
       <View style={{ gap: spacing.sm }}>
         {routine.exerciseIds.map((exerciseId, i) => {
@@ -97,6 +104,7 @@ export default function RoutineEditScreen() {
 
 const styles = StyleSheet.create({
   container: { padding: spacing.lg, paddingBottom: 40 },
+  daysHint: { color: colors.muted, fontSize: 14 },
   label: { color: colors.muted, fontSize: 13, marginBottom: spacing.xs },
   input: {
     backgroundColor: colors.card,

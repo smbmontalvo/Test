@@ -123,6 +123,10 @@ export function formatRelativeDay(ts: number, now = Date.now()): string {
   return formatDate(ts);
 }
 
+export function isSameDay(a: number, b: number): boolean {
+  return new Date(a).toDateString() === new Date(b).toDateString();
+}
+
 export function greeting(now = Date.now()): string {
   const h = new Date(now).getHours();
   if (h < 12) return 'Buenos días';

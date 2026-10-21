@@ -4,6 +4,8 @@ import type { ComponentProps } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { todayIndex as getTodayIndex, WEEK_DAYS } from '../../components/DayPicker';
+import { TodayChecklist } from '../../components/TodayChecklist';
 import { Button, Card } from '../../components/ui';
 import { getExercise } from '../../data/exercises';
 import { useStartWorkout } from '../../hooks/useStartWorkout';
@@ -19,6 +21,7 @@ import {
   formatRelativeDay,
   formatWeight,
   greeting,
+  isSameDay,
   startOfWeek,
   toNumber,
   trainedDaysThisWeek,
@@ -28,15 +31,7 @@ import {
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
-const DAYS = [
-  { short: 'L', long: 'Lunes' },
-  { short: 'M', long: 'Martes' },
-  { short: 'X', long: 'Miércoles' },
-  { short: 'J', long: 'Jueves' },
-  { short: 'V', long: 'Viernes' },
-  { short: 'S', long: 'Sábado' },
-  { short: 'D', long: 'Domingo' },
-];
+const DAYS = WEEK_DAYS;
 
 const duration = (w: Workout) => (w.finishedAt ?? w.startedAt) - w.startedAt;
 
@@ -54,11 +49,21 @@ function bestSets(w: Workout, limit: number) {
 }
 
 export default function HomeScreen() {
-  const { history, routines, active } = useGym();
+  const { history, routines, active, setExerciseDone } = useGym();
   const startWorkout = useStartWorkout();
   const insets = useSafeAreaInsets();
 
   const suggested = nextRoutine(routines, history);
+
+  // Weekly plan: which routine is scheduled for today, and is it done already?
+  const today = getTodayIndex();
+  const todayRoutine = routines.find((r) => r.days?.includes(today));
+  const doneToday = todayRoutine
+    ? history.find((w) => w.routineId === todayRoutine.id && isSameDay(w.startedAt, Date.now()))
+    : undefined;
+  const activeIsToday = !!active && active.routineId === todayRoutine?.id;
+  const hasPlan = routines.some((r) => r.days && r.days.length > 0);
+  const upcoming = nextPlanned(routines, today);
 
   const last = history[0];
   const previousSame = last?.routineId ? history.slice(1).find((w) => w.routineId === last.routineId) : undefined;
@@ -71,7 +76,6 @@ export default function HomeScreen() {
   const thisWeek = history.filter((w) => w.startedAt >= weekStart);
   const weekVolume = thisWeek.reduce((acc, w) => acc + workoutVolume(w), 0);
   const trainedDays = trainedDaysThisWeek(history);
-  const todayIndex = (new Date().getDay() + 6) % 7;
   const streak = weekStreak(history);
 
   return (
@@ -81,7 +85,7 @@ export default function HomeScreen() {
         <Text style={styles.date}>{capitalize(formatLongDate(Date.now()))}</Text>
       </View>
 
-      {active ? (
+      {active && !activeIsToday ? (
         <HeroCard
           eyebrow="Entrenamiento en curso"
           icon="flash"
@@ -90,6 +94,53 @@ export default function HomeScreen() {
           action="Continuar entrenamiento"
           onPress={() => router.push('/entrenamiento')}
         />
+      ) : todayRoutine && doneToday && !active ? (
+        <View style={styles.doneCard} accessible accessibilityRole="header">
+          <View style={styles.doneIcon}>
+            <Ionicons name="checkmark" size={26} color={colors.primaryText} />
+          </View>
+          <Text style={styles.doneTitle}>¡Entrenamiento completado!</Text>
+          <Text style={styles.doneMeta}>
+            {todayRoutine.name} · {completedSets(doneToday)} series · {formatNumber(workoutVolume(doneToday))} kg
+          </Text>
+          {upcoming && (
+            <Text style={styles.doneNext}>
+              Próximo: {upcoming.routine.name}, {upcoming.when}
+            </Text>
+          )}
+        </View>
+      ) : todayRoutine ? (
+        <TodayChecklist
+          routine={todayRoutine}
+          dayName={DAYS[today].long}
+          workout={activeIsToday ? active : undefined}
+          history={history}
+          onToggle={(exerciseId, done) => setExerciseDone(todayRoutine.id, exerciseId, done)}
+          onOpenExercise={() => (activeIsToday ? router.push('/entrenamiento') : startWorkout(todayRoutine.id))}
+        />
+      ) : hasPlan ? (
+        <View style={styles.restCard}>
+          <View style={styles.restHeader}>
+            <Ionicons name="moon" size={18} color={colors.accent} />
+            <Text style={styles.restEyebrow}>Hoy toca descansar</Text>
+          </View>
+          <Text style={styles.restTitle}>Recupera energía</Text>
+          {upcoming && (
+            <Text style={styles.restText}>
+              Próximo entrenamiento: <Text style={styles.restStrong}>{upcoming.routine.name}</Text>, {upcoming.when}.
+            </Text>
+          )}
+          {suggested && (
+            <Button
+              title="Entrenar igual"
+              icon="play"
+              variant="secondary"
+              accessibilityLabel={`Entrenar igual: empezar ${suggested.name}`}
+              onPress={() => startWorkout(suggested.id)}
+              style={{ alignSelf: 'flex-start', marginTop: spacing.sm }}
+            />
+          )}
+        </View>
       ) : suggested ? (
         <HeroCard
           eyebrow="Te toca hoy"
@@ -139,7 +190,7 @@ export default function HomeScreen() {
                 <Metric icon="barbell-outline" value={`${formatNumber(workoutVolume(last))} kg`} label="Volumen" />
               </View>
 
-              {volumeChange !== null && (
+              {volumeChange !== null && volumeChange !== 0 && (
                 <View style={[styles.trend, volumeChange < 0 && styles.trendDown]}>
                   <Ionicons
                     name={volumeChange >= 0 ? 'trending-up' : 'trending-down'}
@@ -178,7 +229,7 @@ export default function HomeScreen() {
         <View style={styles.weekRow}>
           {DAYS.map((day, i) => {
             const done = trainedDays.has(i);
-            const isToday = i === todayIndex;
+            const isToday = i === today;
             return (
               <View
                 key={day.short}
@@ -304,6 +355,16 @@ function Metric({ icon, value, label }: { icon: IconName; value: string; label: 
   );
 }
 
+// First routine planned after today, with a friendly "mañana" / "el jueves".
+function nextPlanned(routines: Routine[], today: number) {
+  for (let k = 1; k <= 7; k++) {
+    const day = (today + k) % 7;
+    const routine = routines.find((r) => r.days?.includes(day));
+    if (routine) return { routine, when: k === 1 ? 'mañana' : `el ${WEEK_DAYS[day].long.toLowerCase()}` };
+  }
+  return undefined;
+}
+
 function routineMeta(r: Routine, history: Workout[]): string {
   const avg = averageDuration(history, r.id);
   const parts = [`${r.exerciseIds.length} ejercicios`];
@@ -339,6 +400,47 @@ const styles = StyleSheet.create({
   heroMeta: { color: colors.primaryText, fontSize: 16, fontWeight: '600' },
   heroDetail: { color: colors.primaryText, fontSize: 15, opacity: 0.75, marginTop: 2 },
   heroButton: { marginTop: spacing.lg },
+
+  doneCard: {
+    backgroundColor: colors.primary,
+    borderRadius: 24,
+    padding: spacing.xl,
+    gap: spacing.xs,
+    marginTop: spacing.sm,
+  },
+  doneIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.pill,
+    backgroundColor: colors.card,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.sm,
+  },
+  doneTitle: { color: colors.primaryText, fontSize: 26, fontWeight: '800', letterSpacing: -0.3 },
+  doneMeta: { color: colors.primaryText, fontSize: 16, fontWeight: '600' },
+  doneNext: { color: colors.primaryText, fontSize: 15, opacity: 0.75, marginTop: spacing.xs },
+
+  restCard: {
+    backgroundColor: colors.card,
+    borderRadius: 24,
+    padding: spacing.xl,
+    gap: spacing.xs,
+    marginTop: spacing.sm,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
+  },
+  restHeader: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  restEyebrow: {
+    color: colors.accent,
+    fontSize: 13,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
+  restTitle: { color: colors.text, fontSize: 26, fontWeight: '800', letterSpacing: -0.3 },
+  restText: { color: colors.muted, fontSize: 16, lineHeight: 22 },
+  restStrong: { color: colors.text, fontWeight: '700' },
 
   sectionTitle: { color: colors.text, fontSize: 20, fontWeight: '800', marginTop: spacing.lg },
 

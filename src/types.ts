@@ -18,6 +18,8 @@ export type Routine = {
   id: string;
   name: string;
   exerciseIds: string[];
+  // Weekdays this routine is planned for, 0 = Monday … 6 = Sunday.
+  days?: number[];
 };
 
 // Weight and reps are kept as the raw text the user typed so partial input
