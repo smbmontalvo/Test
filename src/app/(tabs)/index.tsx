@@ -6,11 +6,11 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { WEEK_DAYS } from '../../components/DayPicker';
 import { ActivityRings, type Ring } from '../../components/home/ActivityRings';
 import { WeekStrip } from '../../components/home/WeekStrip';
-import { Burst, CountUp, FadeInUp, haptic, Pop, PressScale, smoothLayout } from '../../components/motion';
-import { TodayChecklist } from '../../components/TodayChecklist';
+import { Burst, CountUp, FadeInUp, haptic, Pop, PressScale } from '../../components/motion';
 import { Button } from '../../components/ui';
 import { getExercise } from '../../data/exercises';
 import { useScreenInsets } from '../../hooks/useScreenInsets';
+import { useStartWorkout } from '../../hooks/useStartWorkout';
 import { useToday } from '../../hooks/useToday';
 import { useGym } from '../../store/GymContext';
 import { colors, muscleColors, radius, spacing } from '../../theme';
@@ -38,8 +38,8 @@ const duration = (w: Workout) => (w.finishedAt ?? w.startedAt) - w.startedAt;
 
 export default function HomeScreen() {
   const inset = useScreenInsets();
-  const { history, routines, active, cardio, cardioGoal, startWorkout, setExerciseDone, closeStaleWorkout } =
-    useGym();
+  const { history, routines, active, cardio, cardioGoal, closeStaleWorkout } = useGym();
+  const beginWorkout = useStartWorkout();
 
   const now = useToday();
   // At midnight, close yesterday's unfinished workout so today's list shows.
@@ -107,16 +107,17 @@ export default function HomeScreen() {
 
       {/* Today's plan: the hero of the screen. */}
       <FadeInUp delay={120}>
-        {active && !activeIsToday ? (
+        {active ? (
+          // A workout in progress always shows a single way back into it.
           <HeroCard
-            eyebrow="Entrenamiento en curso"
+            eyebrow={activeIsToday ? `En curso · ${DAYS[today].long}` : 'Entrenamiento en curso'}
             icon="flash"
             title={active.name}
             meta={`Empezaste hace ${formatDuration(now - active.startedAt)} · ${completedSets(active)} de ${active.exercises.reduce((n, e) => n + e.sets.length, 0)} series hechas`}
             action="Continuar entrenamiento"
             onPress={() => router.push('/entrenamiento')}
           />
-        ) : todayRoutine && doneToday && !active ? (
+        ) : todayRoutine && doneToday ? (
           <View style={styles.hero} accessible accessibilityRole="header">
             <View style={styles.doneIconWrap}>
               {celebrate && <Burst size={160} />}
@@ -134,21 +135,9 @@ export default function HomeScreen() {
               </Text>
             )}
           </View>
-        ) : todayRoutine && activeIsToday ? (
-          <TodayChecklist
-            routine={todayRoutine}
-            dayName={DAYS[today].long}
-            workout={active}
-            history={history}
-            onToggle={(exerciseId, done) => {
-              smoothLayout(360);
-              setExerciseDone(todayRoutine.id, exerciseId, done);
-            }}
-            onOpenExercise={() => router.push('/entrenamiento')}
-          />
         ) : todayRoutine ? (
-          // Before starting, today's plan is a single call to action; the
-          // exercise list appears once the workout has begun.
+          // Home only offers the start button; the exercise list lives in
+          // the workout screen it opens.
           <HeroCard
             eyebrow={`Hoy toca · ${DAYS[today].long}`}
             icon="calendar"
@@ -157,7 +146,7 @@ export default function HomeScreen() {
             muscles={routineMuscles(todayRoutine)}
             action="Iniciar entrenamiento"
             actionLabel={`Iniciar entrenamiento de ${todayRoutine.name}`}
-            onPress={() => startWorkout(todayRoutine.id)}
+            onPress={() => beginWorkout(todayRoutine.id)}
           />
         ) : hasPlan ? (
           <View style={styles.restCard}>

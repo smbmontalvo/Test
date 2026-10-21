@@ -31,7 +31,6 @@ type GymContextValue = GymState & {
   updateActive: (fn: (w: Workout) => Workout) => void;
   addExerciseToActive: (exerciseId: string) => void;
   finishWorkout: () => Workout | null;
-  setExerciseDone: (routineId: string, exerciseId: string, done: boolean) => void;
   discardWorkout: () => void;
   closeStaleWorkout: (now: number) => void;
   deleteWorkout: (id: string) => void;
@@ -174,31 +173,6 @@ export function GymProvider({ children }: { children: ReactNode }) {
     return finished;
   }, [state.active]);
 
-  // Quick logging from the home checklist: marks every set of one exercise.
-  // Starts the routine's workout on first use and saves it once all are done.
-  const setExerciseDone = useCallback((routineId: string, exerciseId: string, done: boolean) => {
-    setState((s) => {
-      const routine = s.routines.find((r) => r.id === routineId);
-      if (!routine) return s;
-      if (s.active && s.active.routineId !== routineId) return s;
-      const base: Workout = s.active ?? {
-        id: newId(),
-        name: routine.name,
-        routineId,
-        startedAt: Date.now(),
-        exercises: routine.exerciseIds.map((id) => buildExercise(s.history, id)),
-      };
-      const next: Workout = {
-        ...base,
-        exercises: base.exercises.map((e) =>
-          e.exerciseId === exerciseId ? { ...e, sets: e.sets.map((set) => ({ ...set, done })) } : e,
-        ),
-      };
-      const allDone = next.exercises.length > 0 && next.exercises.every((e) => e.sets.every((set) => set.done));
-      return allDone ? { ...s, active: null, history: [finalize(next), ...s.history] } : { ...s, active: next };
-    });
-  }, []);
-
   const closeStaleWorkout = useCallback((now: number) => {
     setState((s) => closeStale(s, now));
   }, []);
@@ -254,7 +228,6 @@ export function GymProvider({ children }: { children: ReactNode }) {
       updateActive,
       addExerciseToActive,
       finishWorkout,
-      setExerciseDone,
       discardWorkout,
       closeStaleWorkout,
       deleteWorkout,
@@ -274,7 +247,6 @@ export function GymProvider({ children }: { children: ReactNode }) {
       updateActive,
       addExerciseToActive,
       finishWorkout,
-      setExerciseDone,
       discardWorkout,
       closeStaleWorkout,
       deleteWorkout,
