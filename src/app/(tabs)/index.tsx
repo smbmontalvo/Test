@@ -20,13 +20,10 @@ import { hasSchedule, nextPlanned, todayPlan } from '../../utils/schedule';
 import {
   completedSets,
   formatDuration,
-  formatLongDate,
   formatNumber,
   formatRelativeDay,
-  greeting,
   startOfWeek,
   trainedDaysThisWeek,
-  weekStreak,
   workoutVolume,
 } from '../../utils/stats';
 
@@ -41,13 +38,12 @@ const duration = (w: Workout) => (w.finishedAt ?? w.startedAt) - w.startedAt;
 
 export default function HomeScreen() {
   const inset = useScreenInsets();
-  const { profile, history, routines, active, cardio, cardioGoal, startWorkout, setExerciseDone, closeStaleWorkout } =
+  const { history, routines, active, cardio, cardioGoal, startWorkout, setExerciseDone, closeStaleWorkout } =
     useGym();
 
   const now = useToday();
   // At midnight, close yesterday's unfinished workout so today's list shows.
   useEffect(() => closeStaleWorkout(now), [now, closeStaleWorkout]);
-  const firstName = (profile.alias || profile.name).trim().split(/\s+/)[0];
 
   // Weekly plan: which routine is scheduled for today, and is it done already?
   const { day: today, routine: todayRoutine, done: doneToday } = todayPlan(routines, history, now);
@@ -82,7 +78,6 @@ export default function HomeScreen() {
   const plannedDays = new Set(routines.flatMap((r) => r.days ?? []));
   const activeDays = new Set(trainedDaysThisWeek(history, now));
   cardioThisWeek.perDay.forEach((m, i) => m > 0 && activeDays.add(i));
-  const streak = weekStreak(history, now);
 
   const rings: Ring[] = [
     {
@@ -106,28 +101,6 @@ export default function HomeScreen() {
       contentContainerStyle={[styles.container, { paddingTop: inset.top + spacing.lg, paddingBottom: inset.bottom + 32 }]}
       scrollIndicatorInsets={{ top: inset.top, bottom: inset.bottom }}
     >
-      {/* Header: date, greeting and the current streak. */}
-      <FadeInUp>
-        <View style={styles.header}>
-          <View style={{ flex: 1 }} accessible accessibilityRole="header">
-            <Text style={styles.date}>{formatLongDate(now)}</Text>
-            <Text style={styles.greeting}>
-              {greeting(now)}
-              {firstName ? `,\n${firstName}` : ''}
-            </Text>
-          </View>
-          {streak > 0 && (
-            <Pop visible delay={300}>
-              <View style={styles.streak} accessible accessibilityLabel={`Racha de ${streak} semanas seguidas`}>
-                <Ionicons name="flame" size={16} color={RING_COLORS.active} />
-                <Text style={styles.streakNumber}>{streak}</Text>
-                <Text style={styles.streakLabel}>{streak === 1 ? 'semana' : 'semanas'}</Text>
-              </View>
-            </Pop>
-          )}
-        </View>
-      </FadeInUp>
-
       <FadeInUp delay={60}>
         <WeekStrip weekStart={weekStart} today={today} active={activeDays} planned={plannedDays} />
       </FadeInUp>
@@ -425,23 +398,6 @@ function plannedMeta(exerciseCount: number, history: Workout[], routineId: strin
 const styles = StyleSheet.create({
   container: { paddingHorizontal: spacing.lg, gap: spacing.lg },
 
-  header: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md },
-  date: { color: colors.muted, fontSize: 13, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8 },
-  greeting: { color: colors.text, fontSize: 34, fontWeight: '800', letterSpacing: -0.8, lineHeight: 38, marginTop: 4 },
-  streak: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: colors.card,
-    borderRadius: radius.pill,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
-    marginTop: 4,
-  },
-  streakNumber: { color: colors.text, fontSize: 16, fontWeight: '800' },
-  streakLabel: { color: colors.muted, fontSize: 13, fontWeight: '600' },
 
   hero: { backgroundColor: colors.primary, borderRadius: 28, padding: spacing.xl, gap: spacing.xs },
   heroEyebrowRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
