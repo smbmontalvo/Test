@@ -2,9 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { useEffect, type ComponentProps } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Avatar } from '../../components/Avatar';
 import { WEEK_DAYS } from '../../components/DayPicker';
 import { TodayChecklist } from '../../components/TodayChecklist';
 import { Button, Card } from '../../components/ui';
@@ -44,7 +42,6 @@ function bestSets(w: Workout, limit: number) {
 
 export default function HomeScreen() {
   const { profile, history, routines, active, startWorkout, setExerciseDone, closeStaleWorkout } = useGym();
-  const insets = useSafeAreaInsets();
 
   const now = useToday();
   // At midnight, close yesterday's unfinished workout so today's list shows.
@@ -71,25 +68,13 @@ export default function HomeScreen() {
   const streak = weekStreak(history, now);
 
   return (
-    <ScrollView contentContainerStyle={[styles.container, { paddingTop: insets.top + spacing.lg }]}>
-      <View style={styles.header}>
-        <View style={{ flex: 1 }} accessible accessibilityRole="header">
-          <Text style={styles.greeting}>
-            {greeting(now)}
-            {firstName ? `, ${firstName}` : ''}
-          </Text>
-          <Text style={styles.date}>{capitalize(formatLongDate(now))}</Text>
-        </View>
-        <Pressable
-          onPress={() => router.push('/perfil')}
-          hitSlop={8}
-          accessibilityRole="button"
-          accessibilityLabel="Editar perfil"
-          accessibilityHint="Cambia tu foto, nombre o alias"
-          style={({ pressed }) => [styles.avatarButton, pressed && { opacity: 0.7 }]}
-        >
-          <Avatar profile={profile} size={48} />
-        </Pressable>
+    <ScrollView contentContainerStyle={styles.container}>
+      <View accessible accessibilityRole="header">
+        <Text style={styles.greeting}>
+          {greeting(now)}
+          {firstName ? `, ${firstName}` : ''}
+        </Text>
+        <Text style={styles.date}>{capitalize(formatLongDate(now))}</Text>
       </View>
 
       {active && !activeIsToday ? (
@@ -379,16 +364,7 @@ function capitalize(s: string) {
 }
 
 const styles = StyleSheet.create({
-  container: { paddingHorizontal: spacing.lg, paddingBottom: 32, gap: spacing.md },
-  header: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md },
-  avatarButton: {
-    borderRadius: radius.pill,
-    shadowColor: '#14161B',
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
-  },
+  container: { paddingHorizontal: spacing.lg, paddingTop: spacing.xs, paddingBottom: 32, gap: spacing.md },
   greeting: { color: colors.text, fontSize: 30, fontWeight: '800', letterSpacing: -0.5 },
   date: { color: colors.muted, fontSize: 16, marginTop: 2 },
 

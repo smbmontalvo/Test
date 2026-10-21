@@ -14,6 +14,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { showAlert } from '../components/Dialog';
+import { ProfileButton } from '../components/ProfileButton';
 import { Button, Card, EmptyState, IconButton } from '../components/ui';
 import { getExercise } from '../data/exercises';
 import { useGym } from '../store/GymContext';
@@ -135,9 +136,12 @@ export default function ActiveWorkoutScreen() {
         options={{
           title: formatClock((now - active.startedAt) / 1000),
           headerRight: () => (
-            <Pressable onPress={finish} hitSlop={8} style={styles.finishButton}>
-              <Text style={styles.finishText}>Terminar</Text>
-            </Pressable>
+            <View style={styles.headerRight}>
+              <Pressable onPress={finish} hitSlop={8} style={styles.finishButton}>
+                <Text style={styles.finishText}>Terminar</Text>
+              </Pressable>
+              <ProfileButton />
+            </View>
           ),
         }}
       />
@@ -247,6 +251,7 @@ export default function ActiveWorkoutScreen() {
 
 const styles = StyleSheet.create({
   container: { padding: spacing.lg, paddingBottom: 120 },
+  headerRight: { flexDirection: 'row', alignItems: 'center' },
   finishButton: {
     backgroundColor: colors.accentSoft,
     paddingVertical: 6,
