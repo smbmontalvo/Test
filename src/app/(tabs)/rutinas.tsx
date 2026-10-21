@@ -79,7 +79,7 @@ export default function RoutinesScreen() {
 
 const styles = StyleSheet.create({
   container: { padding: spacing.lg, paddingBottom: 40 },
-  newRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.lg },
+  newRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.lg },
   input: {
     flex: 1,
     minWidth: 0,
@@ -87,6 +87,7 @@ const styles = StyleSheet.create({
     color: colors.text,
     borderRadius: radius.md,
     paddingHorizontal: spacing.md,
+    paddingVertical: 12,
     fontSize: 16,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.border,

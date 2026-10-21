@@ -135,7 +135,7 @@ export default function ActiveWorkoutScreen() {
         options={{
           title: formatClock((now - active.startedAt) / 1000),
           headerRight: () => (
-            <Pressable onPress={finish} hitSlop={8} style={{ paddingHorizontal: spacing.sm }}>
+            <Pressable onPress={finish} hitSlop={8} style={styles.finishButton}>
               <Text style={styles.finishText}>Terminar</Text>
             </Pressable>
           ),
@@ -204,8 +204,8 @@ export default function ActiveWorkoutScreen() {
                 </View>
               ))}
 
-              <Pressable onPress={() => addSet(exIndex)} style={styles.addSet}>
-                <Ionicons name="add" size={18} color={colors.accent} />
+              <Pressable onPress={() => addSet(exIndex)} hitSlop={8} style={styles.addSet}>
+                <Ionicons name="add" size={15} color={colors.accent} />
                 <Text style={styles.addSetText}>Añadir serie</Text>
               </Pressable>
             </Card>
@@ -247,7 +247,14 @@ export default function ActiveWorkoutScreen() {
 
 const styles = StyleSheet.create({
   container: { padding: spacing.lg, paddingBottom: 120 },
-  finishText: { color: colors.accent, fontWeight: '800', fontSize: 16 },
+  finishButton: {
+    backgroundColor: colors.accentSoft,
+    paddingVertical: 4,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.pill,
+    marginHorizontal: spacing.sm,
+  },
+  finishText: { color: colors.accent, fontWeight: '700', fontSize: 14 },
   title: { color: colors.text, fontSize: 24, fontWeight: '800', padding: 0 },
   summary: { color: colors.muted, marginTop: 4, marginBottom: spacing.lg },
   exCard: { marginBottom: spacing.md, paddingHorizontal: spacing.md },
@@ -288,12 +295,15 @@ const styles = StyleSheet.create({
   addSet: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    alignSelf: 'center',
     gap: 4,
-    paddingVertical: spacing.sm,
-    marginTop: spacing.sm,
+    paddingVertical: 4,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.pill,
+    backgroundColor: colors.accentSoft,
+    marginTop: spacing.md,
   },
-  addSetText: { color: colors.accent, fontWeight: '700' },
+  addSetText: { color: colors.accent, fontWeight: '700', fontSize: 14 },
   hint: { color: colors.muted, fontSize: 12, textAlign: 'center' },
   rest: {
     position: 'absolute',
@@ -309,10 +319,10 @@ const styles = StyleSheet.create({
   },
   restText: { flex: 1, color: colors.primaryText, fontWeight: '800', fontSize: 17 },
   restBtn: {
-    backgroundColor: 'rgba(14,15,19,0.12)',
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: radius.sm,
+    backgroundColor: colors.card,
+    paddingVertical: 3,
+    paddingHorizontal: 12,
+    borderRadius: radius.pill,
   },
-  restBtnText: { color: colors.primaryText, fontWeight: '700' },
+  restBtnText: { color: colors.accent, fontWeight: '700', fontSize: 13 },
 });

@@ -53,8 +53,8 @@ export function DialogHost() {
                 <Text
                   style={[
                     styles.buttonText,
-                    b.style === 'destructive' && { color: colors.danger },
-                    !b.style && { color: colors.primaryText },
+                    b.style === 'destructive' && { color: colors.dangerText },
+                    (!b.style || b.style === 'default') && { color: colors.accent },
                   ]}
                 >
                   {b.text}
@@ -89,9 +89,9 @@ const styles = StyleSheet.create({
   title: { color: colors.text, fontSize: 18, fontWeight: '800' },
   message: { color: colors.muted, fontSize: 15, lineHeight: 21 },
   buttons: { gap: spacing.sm, marginTop: spacing.md },
-  button: { paddingVertical: 12, borderRadius: radius.md, alignItems: 'center' },
-  primary: { backgroundColor: colors.primary },
+  button: { paddingVertical: 6, borderRadius: radius.pill, alignItems: 'center' },
+  primary: { backgroundColor: colors.accentSoft },
   cancel: { backgroundColor: colors.cardAlt },
-  destructive: { backgroundColor: 'rgba(229,72,77,0.10)' },
+  destructive: { backgroundColor: colors.dangerSoft },
   buttonText: { color: colors.text, fontWeight: '700', fontSize: 15 },
 });

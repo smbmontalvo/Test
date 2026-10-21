@@ -10,7 +10,12 @@ export const colors = {
   primaryText: '#14161B',
   // Darker green for accent text and icons on light surfaces.
   accent: '#4D7C0F',
+  // Soft tints behind button labels.
+  accentSoft: '#ECFCCB',
+  accentBorder: '#D3EDA6',
   danger: '#E5484D',
+  dangerText: '#C62A2F',
+  dangerSoft: '#FDECEC',
   success: '#2F9E6B',
 };
 
@@ -26,4 +31,5 @@ export const radius = {
   sm: 8,
   md: 12,
   lg: 18,
+  pill: 999,
 };

@@ -20,22 +20,22 @@ type ButtonProps = {
 };
 
 export function Button({ title, onPress, variant = 'primary', icon, disabled, style }: ButtonProps) {
-  const fg =
-    variant === 'primary' ? colors.primaryText : variant === 'danger' ? colors.danger : colors.text;
+  const fg = variant === 'danger' ? colors.dangerText : colors.accent;
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled}
+      hitSlop={8}
       style={({ pressed }) => [
         styles.button,
-        variant === 'primary' && { backgroundColor: colors.primary },
-        variant === 'secondary' && { backgroundColor: colors.cardAlt },
-        variant === 'danger' && { backgroundColor: 'rgba(229,72,77,0.10)' },
+        variant === 'primary' && { backgroundColor: colors.accentSoft },
+        variant === 'secondary' && styles.buttonSecondary,
+        variant === 'danger' && { backgroundColor: colors.dangerSoft },
         (pressed || disabled) && { opacity: 0.6 },
         style,
       ]}
     >
-      {icon && <Ionicons name={icon} size={18} color={fg} />}
+      {icon && <Ionicons name={icon} size={15} color={fg} />}
       <Text style={[styles.buttonText, { color: fg }]}>{title}</Text>
     </Pressable>
   );
@@ -71,7 +71,7 @@ export function SectionTitle({ children, right }: { children: ReactNode; right?:
 export function Chip({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
   return (
     <Pressable onPress={onPress} style={[styles.chip, active && styles.chipActive]}>
-      <Text style={[styles.chipText, active && { color: colors.primaryText }]}>{label}</Text>
+      <Text style={[styles.chipText, active && { color: colors.accent }]}>{label}</Text>
     </Pressable>
   );
 }
@@ -108,12 +108,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: spacing.sm,
-    paddingVertical: 14,
+    gap: 6,
+    paddingVertical: 5,
     paddingHorizontal: spacing.lg,
-    borderRadius: radius.md,
+    borderRadius: radius.pill,
   },
-  buttonText: { fontSize: 16, fontWeight: '700' },
+  buttonSecondary: {
+    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.accentBorder,
+  },
+  buttonText: { fontSize: 14, fontWeight: '700' },
   sectionRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -130,7 +135,7 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.border,
   },
-  chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
+  chipActive: { backgroundColor: colors.accentSoft, borderColor: colors.accentBorder },
   chipText: { color: colors.text, fontWeight: '600', fontSize: 14 },
   stat: { flex: 1, padding: spacing.md, gap: 2 },
   statValue: { color: colors.text, fontSize: 22, fontWeight: '800', marginTop: spacing.xs },
