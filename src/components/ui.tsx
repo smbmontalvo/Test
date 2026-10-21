@@ -86,7 +86,13 @@ export function SectionTitle({ children, right }: { children: ReactNode; right?:
 
 export function Chip({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
   return (
-    <Pressable onPress={onPress} style={[styles.chip, active && styles.chipActive]}>
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityState={{ selected: active }}
+      accessibilityLabel={label}
+      style={[styles.chip, active && styles.chipActive]}
+    >
       <Text style={[styles.chipText, active && { color: colors.accent }]}>{label}</Text>
     </Pressable>
   );

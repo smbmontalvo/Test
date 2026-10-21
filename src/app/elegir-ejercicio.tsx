@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { EmptyState } from '../components/ui';
-import { EXERCISES } from '../data/exercises';
+import { allExercises } from '../data/exercises';
 import { useGym } from '../store/GymContext';
 import { colors, radius, spacing } from '../theme';
 
@@ -17,7 +17,7 @@ export default function ExercisePickerScreen() {
 
   const routine = routines.find((r) => r.id === rutina);
   const q = query.trim().toLowerCase();
-  const filtered = EXERCISES.filter(
+  const filtered = allExercises().filter(
     (e) => e.name.toLowerCase().includes(q) || e.muscle.toLowerCase().includes(q),
   );
 
@@ -39,22 +39,57 @@ export default function ExercisePickerScreen() {
       contentContainerStyle={styles.container}
       keyboardShouldPersistTaps="handled"
       ListHeaderComponent={
-        <TextInput
-          value={query}
-          onChangeText={setQuery}
-          placeholder="Buscar por nombre o músculo…"
-          placeholderTextColor={colors.muted}
-          style={styles.search}
-          autoFocus
-        />
+        <View>
+          <TextInput
+            value={query}
+            onChangeText={setQuery}
+            placeholder="Buscar por nombre o músculo…"
+            placeholderTextColor={colors.muted}
+            style={styles.search}
+            accessibilityLabel="Buscar ejercicio"
+            autoFocus
+          />
+          <Pressable
+            onPress={() =>
+              router.push({ pathname: '/nuevo-ejercicio', params: query.trim() ? { nombre: query.trim() } : {} })
+            }
+            accessibilityRole="button"
+            accessibilityLabel="Crear ejercicio nuevo"
+            accessibilityHint="Abre un formulario para crear tu propio ejercicio"
+            style={({ pressed }) => [styles.row, pressed && { opacity: 0.6 }]}
+          >
+            <View style={styles.createIcon}>
+              <Ionicons name="add" size={20} color={colors.accent} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.name, { color: colors.accent }]}>Crear ejercicio</Text>
+              <Text style={styles.meta}>¿No está en la lista? Añade el tuyo.</Text>
+            </View>
+          </Pressable>
+        </View>
       }
-      ListEmptyComponent={<EmptyState icon="search" title="Sin resultados" text="Prueba con otra búsqueda." />}
+      ListEmptyComponent={
+        <EmptyState icon="search" title="Sin resultados" text="Prueba con otra búsqueda o créalo arriba." />
+      }
       renderItem={({ item }) => {
         const added = routine?.exerciseIds.includes(item.id) ?? false;
         return (
-          <Pressable onPress={() => pick(item.id)} style={({ pressed }) => [styles.row, pressed && { opacity: 0.6 }]}>
+          <Pressable
+            onPress={() => pick(item.id)}
+            accessibilityRole="button"
+            accessibilityLabel={`${added ? 'Ya en la rutina: ' : 'Añadir '}${item.name}, ${item.muscle}`}
+            accessibilityState={{ selected: added }}
+            style={({ pressed }) => [styles.row, pressed && { opacity: 0.6 }]}
+          >
             <View style={{ flex: 1 }}>
-              <Text style={styles.name}>{item.name}</Text>
+              <View style={styles.nameRow}>
+                <Text style={styles.name}>{item.name}</Text>
+                {item.custom && (
+                  <View style={styles.mine}>
+                    <Text style={styles.mineText}>Tuyo</Text>
+                  </View>
+                )}
+              </View>
               <Text style={styles.meta}>
                 {item.muscle} · {item.equipment}
               </Text>
@@ -89,6 +124,23 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.border,
   },
-  name: { color: colors.text, fontSize: 16, fontWeight: '600' },
+  name: { color: colors.text, fontSize: 16, fontWeight: '600', flexShrink: 1 },
+  nameRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: spacing.sm },
+  mine: {
+    backgroundColor: colors.accentSoft,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+  },
+  mineText: { color: colors.accent, fontSize: 11, fontWeight: '800' },
+  createIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.pill,
+    backgroundColor: colors.accentSoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.md,
+  },
   meta: { color: colors.muted, fontSize: 13, marginTop: 2 },
 });
