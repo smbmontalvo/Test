@@ -1,6 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
-import type { ComponentProps } from 'react';
+import { useEffect, type ComponentProps } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -44,11 +44,13 @@ function bestSets(w: Workout, limit: number) {
 }
 
 export default function HomeScreen() {
-  const { profile, history, routines, active, setExerciseDone } = useGym();
+  const { profile, history, routines, active, setExerciseDone, closeStaleWorkout } = useGym();
   const startWorkout = useStartWorkout();
   const insets = useSafeAreaInsets();
 
   const now = useToday();
+  // At midnight, close yesterday's unfinished workout so today's list shows.
+  useEffect(() => closeStaleWorkout(now), [now, closeStaleWorkout]);
   const firstName = (profile.alias || profile.name).trim().split(/\s+/)[0];
 
   // Weekly plan: which routine is scheduled for today, and is it done already?

@@ -5,7 +5,7 @@ import { ActivityIndicator, View } from 'react-native';
 import { DEFAULT_ROUTINES } from '../data/exercises';
 import { colors } from '../theme';
 import type { GymState, Profile, Routine, SetEntry, Workout, WorkoutExercise } from '../types';
-import { newId } from '../utils/stats';
+import { isSameDay, newId } from '../utils/stats';
 
 const STORAGE_KEY = 'gymapp:state:v1';
 const DEFAULT_SETS = 3;
@@ -28,6 +28,7 @@ type GymContextValue = GymState & {
   finishWorkout: () => Workout | null;
   setExerciseDone: (routineId: string, exerciseId: string, done: boolean) => void;
   discardWorkout: () => void;
+  closeStaleWorkout: (now: number) => void;
   deleteWorkout: (id: string) => void;
 };
 
@@ -56,6 +57,19 @@ function withDefaultDays(state: GymState): GymState {
   };
 }
 
+// Closes a workout that no longer belongs to today's plan: one without a
+// routine (old free workouts) or one left open from a previous day. Any
+// completed sets are kept in the history; an empty workout is dropped.
+function closeStale(state: GymState, now: number): GymState {
+  const w = state.active;
+  if (!w) return state;
+  const hasRoutine = !!w.routineId && state.routines.some((r) => r.id === w.routineId);
+  if (hasRoutine && isSameDay(w.startedAt, now)) return state;
+  const finished = finalize(w);
+  const keep = hasRoutine && finished.exercises.length > 0;
+  return { ...state, active: null, history: keep ? [finished, ...state.history] : state.history };
+}
+
 // Keep only completed sets and stamp the finish time.
 function finalize(w: Workout): Workout {
   return {
@@ -74,7 +88,10 @@ export function GymProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     AsyncStorage.getItem(STORAGE_KEY)
       .then((raw) => {
-        if (raw) setState(withDefaultDays({ ...initialState, ...(JSON.parse(raw) as Partial<GymState>) }));
+        if (raw) {
+          const saved = withDefaultDays({ ...initialState, ...(JSON.parse(raw) as Partial<GymState>) });
+          setState(closeStale(saved, Date.now()));
+        }
       })
       .catch((err) => console.warn('No se pudieron cargar los datos', err))
       .finally(() => setLoaded(true));
@@ -170,6 +187,10 @@ export function GymProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const closeStaleWorkout = useCallback((now: number) => {
+    setState((s) => closeStale(s, now));
+  }, []);
+
   const discardWorkout = useCallback(() => {
     setState((s) => ({ ...s, active: null }));
   }, []);
@@ -191,6 +212,7 @@ export function GymProvider({ children }: { children: ReactNode }) {
       finishWorkout,
       setExerciseDone,
       discardWorkout,
+      closeStaleWorkout,
       deleteWorkout,
     }),
     [
@@ -205,6 +227,7 @@ export function GymProvider({ children }: { children: ReactNode }) {
       finishWorkout,
       setExerciseDone,
       discardWorkout,
+      closeStaleWorkout,
       deleteWorkout,
     ],
   );
