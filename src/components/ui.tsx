@@ -16,18 +16,34 @@ type ButtonProps = {
   variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
   icon?: IconName;
   disabled?: boolean;
+  // 'lg' is for a screen's main action: a full 48pt touch target.
+  size?: 'md' | 'lg';
+  accessibilityLabel?: string;
   style?: StyleProp<ViewStyle>;
 };
 
-export function Button({ title, onPress, variant = 'primary', icon, disabled, style }: ButtonProps) {
+export function Button({
+  title,
+  onPress,
+  variant = 'primary',
+  icon,
+  disabled,
+  size = 'md',
+  accessibilityLabel,
+  style,
+}: ButtonProps) {
   const fg = variant === 'danger' ? colors.dangerText : colors.accent;
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled}
       hitSlop={8}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel ?? title}
+      accessibilityState={{ disabled: !!disabled }}
       style={({ pressed }) => [
         styles.button,
+        size === 'lg' && styles.buttonLarge,
         variant === 'primary' && { backgroundColor: colors.accentSoft },
         variant === 'secondary' && styles.buttonSecondary,
         variant === 'danger' && { backgroundColor: colors.dangerSoft },
@@ -35,8 +51,8 @@ export function Button({ title, onPress, variant = 'primary', icon, disabled, st
         style,
       ]}
     >
-      {icon && <Ionicons name={icon} size={15} color={fg} />}
-      <Text style={[styles.buttonText, { color: fg }]}>{title}</Text>
+      {icon && <Ionicons name={icon} size={size === 'lg' ? 20 : 15} color={fg} />}
+      <Text style={[styles.buttonText, size === 'lg' && styles.buttonTextLarge, { color: fg }]}>{title}</Text>
     </Pressable>
   );
 }
@@ -113,6 +129,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     borderRadius: radius.pill,
   },
+  buttonLarge: { minHeight: 48, paddingVertical: 12, gap: spacing.sm },
   buttonSecondary: {
     backgroundColor: colors.card,
     borderWidth: 1,
@@ -124,6 +141,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   buttonText: { fontSize: 14, fontWeight: '700' },
+  buttonTextLarge: { fontSize: 17 },
   sectionRow: {
     flexDirection: 'row',
     alignItems: 'center',

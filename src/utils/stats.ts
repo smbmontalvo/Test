@@ -99,6 +99,41 @@ export function formatDate(ts: number): string {
   return `${WEEKDAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}`;
 }
 
+const MONTHS_LONG = [
+  'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+  'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
+];
+
+export function formatLongDate(ts: number): string {
+  const d = new Date(ts);
+  return `${WEEKDAYS[d.getDay()]} ${d.getDate()} de ${MONTHS_LONG[d.getMonth()]}`;
+}
+
+// "Hoy", "Ayer", "Hace 3 días", or the date for anything older than a week.
+export function formatRelativeDay(ts: number, now = Date.now()): string {
+  const startOfDay = (t: number) => {
+    const d = new Date(t);
+    d.setHours(0, 0, 0, 0);
+    return d.getTime();
+  };
+  const days = Math.round((startOfDay(now) - startOfDay(ts)) / DAY_MS);
+  if (days <= 0) return 'Hoy';
+  if (days === 1) return 'Ayer';
+  if (days < 7) return `Hace ${days} días`;
+  return formatDate(ts);
+}
+
+export function greeting(now = Date.now()): string {
+  const h = new Date(now).getHours();
+  if (h < 12) return 'Buenos días';
+  if (h < 20) return 'Buenas tardes';
+  return 'Buenas noches';
+}
+
+export function formatWeight(n: number): string {
+  return String(n).replace('.', ',');
+}
+
 export function formatNumber(n: number): string {
   return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
