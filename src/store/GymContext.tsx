@@ -4,19 +4,21 @@ import { ActivityIndicator, View } from 'react-native';
 
 import { DEFAULT_ROUTINES } from '../data/exercises';
 import { colors } from '../theme';
-import type { GymState, Routine, SetEntry, Workout, WorkoutExercise } from '../types';
+import type { GymState, Profile, Routine, SetEntry, Workout, WorkoutExercise } from '../types';
 import { newId } from '../utils/stats';
 
 const STORAGE_KEY = 'gymapp:state:v1';
 const DEFAULT_SETS = 3;
 
 const initialState: GymState = {
+  profile: { name: '', alias: '' },
   routines: DEFAULT_ROUTINES,
   history: [],
   active: null,
 };
 
 type GymContextValue = GymState & {
+  updateProfile: (patch: Partial<Profile>) => void;
   createRoutine: (name: string) => string;
   updateRoutine: (id: string, patch: Partial<Omit<Routine, 'id'>>) => void;
   deleteRoutine: (id: string) => void;
@@ -84,6 +86,10 @@ export function GymProvider({ children }: { children: ReactNode }) {
       console.warn('No se pudieron guardar los datos', err),
     );
   }, [state, loaded]);
+
+  const updateProfile = useCallback((patch: Partial<Profile>) => {
+    setState((s) => ({ ...s, profile: { ...s.profile, ...patch } }));
+  }, []);
 
   const createRoutine = useCallback((name: string) => {
     const id = newId();
@@ -174,6 +180,7 @@ export function GymProvider({ children }: { children: ReactNode }) {
   const value = useMemo<GymContextValue>(
     () => ({
       ...state,
+      updateProfile,
       createRoutine,
       updateRoutine,
       deleteRoutine,
@@ -187,6 +194,7 @@ export function GymProvider({ children }: { children: ReactNode }) {
     }),
     [
       state,
+      updateProfile,
       createRoutine,
       updateRoutine,
       deleteRoutine,

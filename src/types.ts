@@ -44,7 +44,15 @@ export type Workout = {
   exercises: WorkoutExercise[];
 };
 
+export type Profile = {
+  name: string;
+  alias: string;
+  // Data URI of the profile photo, so it survives app restarts.
+  photo?: string;
+};
+
 export type GymState = {
+  profile: Profile;
   routines: Routine[];
   history: Workout[];
   active: Workout | null;

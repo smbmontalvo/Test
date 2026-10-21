@@ -22,6 +22,7 @@ export default function RootLayout() {
         <Stack.Screen name="rutina/[id]" options={{ title: 'Editar rutina' }} />
         <Stack.Screen name="workout/[id]" options={{ title: 'Detalle' }} />
         <Stack.Screen name="entrenamiento" options={{ title: 'Entrenamiento', gestureEnabled: false }} />
+        <Stack.Screen name="perfil" options={{ title: 'Tu perfil', presentation: 'modal' }} />
         <Stack.Screen name="animo" options={{ title: 'Tu progreso' }} />
         <Stack.Screen name="elegir-ejercicio" options={{ title: 'Añadir ejercicio', presentation: 'modal' }} />
       </Stack>
