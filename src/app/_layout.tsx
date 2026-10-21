@@ -1,6 +1,7 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
+import { BackButton } from '../components/BackButton';
 import { DialogHost } from '../components/Dialog';
 import { ProfileButton } from '../components/ProfileButton';
 import { GymProvider } from '../store/GymContext';
@@ -21,6 +22,8 @@ export default function RootLayout() {
           headerBackButtonDisplayMode: 'minimal',
           contentStyle: { backgroundColor: colors.bg },
           headerRight: () => <ProfileButton />,
+          headerLeft: ({ canGoBack }) => (canGoBack ? <BackButton /> : null),
+          headerBackVisible: false,
         }}
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
