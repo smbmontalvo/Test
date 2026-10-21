@@ -8,7 +8,7 @@ import { colors } from '../theme';
 export default function RootLayout() {
   return (
     <GymProvider>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <Stack
         screenOptions={{
           headerStyle: { backgroundColor: colors.bg },

@@ -1,14 +1,17 @@
 export const colors = {
-  bg: '#0E0F13',
-  card: '#181A20',
-  cardAlt: '#20232B',
-  border: '#2A2D37',
-  text: '#F2F3F5',
-  muted: '#8B8F9A',
+  bg: '#F4F5F7',
+  card: '#FFFFFF',
+  cardAlt: '#EEF0F3',
+  border: '#E1E4E9',
+  text: '#14161B',
+  muted: '#6B7080',
+  // Lime is for fills only (buttons, checks); on white it is too light for text.
   primary: '#C6F432',
-  primaryText: '#0E0F13',
-  danger: '#FF5A5F',
-  success: '#3DDC97',
+  primaryText: '#14161B',
+  // Darker green for accent text and icons on light surfaces.
+  accent: '#4D7C0F',
+  danger: '#E5484D',
+  success: '#2F9E6B',
 };
 
 export const spacing = {

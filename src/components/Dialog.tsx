@@ -71,7 +71,7 @@ export function DialogHost() {
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: 'rgba(20,22,27,0.45)',
     alignItems: 'center',
     justifyContent: 'center',
     padding: spacing.xl,
@@ -92,6 +92,6 @@ const styles = StyleSheet.create({
   button: { paddingVertical: 12, borderRadius: radius.md, alignItems: 'center' },
   primary: { backgroundColor: colors.primary },
   cancel: { backgroundColor: colors.cardAlt },
-  destructive: { backgroundColor: 'rgba(255,90,95,0.12)' },
+  destructive: { backgroundColor: 'rgba(229,72,77,0.10)' },
   buttonText: { color: colors.text, fontWeight: '700', fontSize: 15 },
 });

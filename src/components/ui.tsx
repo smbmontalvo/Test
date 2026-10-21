@@ -30,7 +30,7 @@ export function Button({ title, onPress, variant = 'primary', icon, disabled, st
         styles.button,
         variant === 'primary' && { backgroundColor: colors.primary },
         variant === 'secondary' && { backgroundColor: colors.cardAlt },
-        variant === 'danger' && { backgroundColor: 'rgba(255,90,95,0.12)' },
+        variant === 'danger' && { backgroundColor: 'rgba(229,72,77,0.10)' },
         (pressed || disabled) && { opacity: 0.6 },
         style,
       ]}
@@ -79,7 +79,7 @@ export function Chip({ label, active, onPress }: { label: string; active: boolea
 export function Stat({ label, value, icon }: { label: string; value: string; icon: IconName }) {
   return (
     <Card style={styles.stat}>
-      <Ionicons name={icon} size={18} color={colors.primary} />
+      <Ionicons name={icon} size={18} color={colors.accent} />
       <Text style={styles.statValue}>{value}</Text>
       <Text style={styles.statLabel}>{label}</Text>
     </Card>

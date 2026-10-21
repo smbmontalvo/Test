@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.md },
-  index: { color: colors.primary, fontWeight: '800', width: 18 },
+  index: { color: colors.accent, fontWeight: '800', width: 18 },
   name: { color: colors.text, fontSize: 15, fontWeight: '600' },
   meta: { color: colors.muted, fontSize: 12, marginTop: 2 },
 });

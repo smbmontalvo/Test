@@ -62,7 +62,7 @@ export default function ExercisePickerScreen() {
             <Ionicons
               name={added ? 'checkmark-circle' : 'add-circle-outline'}
               size={26}
-              color={added ? colors.success : colors.primary}
+              color={added ? colors.success : colors.accent}
             />
           </Pressable>
         );

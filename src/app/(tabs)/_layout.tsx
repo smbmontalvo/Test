@@ -8,7 +8,7 @@ type IconName = ComponentProps<typeof Ionicons>['name'];
 
 function tabIcon(name: IconName) {
   return ({ focused, size }: { focused: boolean; size: number }) => (
-    <Ionicons name={name} color={focused ? colors.primary : colors.muted} size={size} />
+    <Ionicons name={name} color={focused ? colors.accent : colors.muted} size={size} />
   );
 }
 
@@ -22,7 +22,7 @@ export default function TabsLayout() {
         headerTitleStyle: { fontWeight: '800' },
         sceneStyle: { backgroundColor: colors.bg },
         tabBarStyle: { backgroundColor: colors.card, borderTopColor: colors.border },
-        tabBarActiveTintColor: colors.primary,
+        tabBarActiveTintColor: colors.accent,
         tabBarInactiveTintColor: colors.muted,
       }}
     >

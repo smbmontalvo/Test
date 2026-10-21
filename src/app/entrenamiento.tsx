@@ -205,7 +205,7 @@ export default function ActiveWorkoutScreen() {
               ))}
 
               <Pressable onPress={() => addSet(exIndex)} style={styles.addSet}>
-                <Ionicons name="add" size={18} color={colors.primary} />
+                <Ionicons name="add" size={18} color={colors.accent} />
                 <Text style={styles.addSetText}>Añadir serie</Text>
               </Pressable>
             </Card>
@@ -247,7 +247,7 @@ export default function ActiveWorkoutScreen() {
 
 const styles = StyleSheet.create({
   container: { padding: spacing.lg, paddingBottom: 120 },
-  finishText: { color: colors.primary, fontWeight: '800', fontSize: 16 },
+  finishText: { color: colors.accent, fontWeight: '800', fontSize: 16 },
   title: { color: colors.text, fontSize: 24, fontWeight: '800', padding: 0 },
   summary: { color: colors.muted, marginTop: 4, marginBottom: spacing.lg },
   exCard: { marginBottom: spacing.md, paddingHorizontal: spacing.md },
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: radius.sm,
   },
-  setRowDone: { backgroundColor: 'rgba(198,244,50,0.08)' },
+  setRowDone: { backgroundColor: 'rgba(198,244,50,0.22)' },
   setIndex: { color: colors.text, fontWeight: '700', textAlign: 'center' },
   input: {
     backgroundColor: colors.cardAlt,
@@ -293,7 +293,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     marginTop: spacing.sm,
   },
-  addSetText: { color: colors.primary, fontWeight: '700' },
+  addSetText: { color: colors.accent, fontWeight: '700' },
   hint: { color: colors.muted, fontSize: 12, textAlign: 'center' },
   rest: {
     position: 'absolute',

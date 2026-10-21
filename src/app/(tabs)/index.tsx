@@ -78,7 +78,7 @@ export default function HomeScreen() {
                 <Text style={styles.routineName}>{r.name}</Text>
                 <Text style={styles.routineMeta}>{r.exerciseIds.length} ejercicios</Text>
               </View>
-              <Ionicons name="play-circle" size={30} color={colors.primary} />
+              <Ionicons name="play-circle" size={30} color={colors.accent} />
             </Card>
           </Pressable>
         ))}
@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   dayDotDone: { backgroundColor: colors.primary },
-  dayDotToday: { borderWidth: 2, borderColor: colors.primary },
+  dayDotToday: { borderWidth: 2, borderColor: colors.accent },
   dayLabel: { color: colors.muted, fontSize: 12, fontWeight: '600' },
   routineRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: spacing.md },
   routineName: { color: colors.text, fontSize: 16, fontWeight: '700' },

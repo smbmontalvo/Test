@@ -84,6 +84,6 @@ const styles = StyleSheet.create({
   name: { color: colors.text, fontSize: 16, fontWeight: '600' },
   meta: { color: colors.muted, fontSize: 13, marginTop: 2 },
   pr: { alignItems: 'flex-end' },
-  prLabel: { color: colors.primary, fontSize: 11, fontWeight: '800' },
+  prLabel: { color: colors.accent, fontSize: 11, fontWeight: '800' },
   prValue: { color: colors.text, fontSize: 14, fontWeight: '700' },
 });

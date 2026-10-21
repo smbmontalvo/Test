@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
   container: { padding: spacing.lg, paddingBottom: 40 },
   statsRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.lg },
   row: { flexDirection: 'row', alignItems: 'center' },
-  date: { color: colors.primary, fontSize: 12, fontWeight: '700', textTransform: 'uppercase' },
+  date: { color: colors.accent, fontSize: 12, fontWeight: '700', textTransform: 'uppercase' },
   name: { color: colors.text, fontSize: 16, fontWeight: '700', marginTop: 2 },
   meta: { color: colors.muted, fontSize: 13, marginTop: 2 },
 });

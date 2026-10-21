@@ -68,7 +68,7 @@ export default function WorkoutDetailScreen() {
 
 const styles = StyleSheet.create({
   container: { padding: spacing.lg, paddingBottom: 40 },
-  date: { color: colors.primary, fontSize: 13, fontWeight: '700', textTransform: 'uppercase' },
+  date: { color: colors.accent, fontSize: 13, fontWeight: '700', textTransform: 'uppercase' },
   title: { color: colors.text, fontSize: 24, fontWeight: '800', marginBottom: spacing.lg },
   statsRow: { flexDirection: 'row', gap: spacing.sm },
   exName: { color: colors.text, fontSize: 16, fontWeight: '700', marginBottom: spacing.sm },
