@@ -2,7 +2,6 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { router, Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -14,6 +13,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { showAlert } from '../components/Dialog';
 import { Button, Card, EmptyState, IconButton } from '../components/ui';
 import { getExercise } from '../data/exercises';
 import { useGym } from '../store/GymContext';
@@ -89,7 +89,7 @@ export default function ActiveWorkoutScreen() {
 
   const removeExercise = (exIndex: number) => {
     const name = getExercise(active.exercises[exIndex].exerciseId)?.name ?? 'este ejercicio';
-    Alert.alert('Quitar ejercicio', `¿Quitar ${name} del entrenamiento?`, [
+    showAlert('Quitar ejercicio', `¿Quitar ${name} del entrenamiento?`, [
       { text: 'Cancelar', style: 'cancel' },
       {
         text: 'Quitar',
@@ -106,17 +106,17 @@ export default function ActiveWorkoutScreen() {
       if (saved) router.replace(`/workout/${saved.id}`);
     };
     if (done === 0) {
-      Alert.alert('Sin series completadas', 'Marca al menos una serie con ✓ o descarta el entrenamiento.');
+      showAlert('Sin series completadas', 'Marca al menos una serie con ✓ o descarta el entrenamiento.');
       return;
     }
-    Alert.alert('Terminar entrenamiento', `Has completado ${done} series. ¿Guardar y terminar?`, [
+    showAlert('Terminar entrenamiento', `Has completado ${done} series. ¿Guardar y terminar?`, [
       { text: 'Seguir entrenando', style: 'cancel' },
       { text: 'Terminar', onPress: doFinish },
     ]);
   };
 
   const discard = () => {
-    Alert.alert('Descartar entrenamiento', 'Se perderán todas las series registradas.', [
+    showAlert('Descartar entrenamiento', 'Se perderán todas las series registradas.', [
       { text: 'Cancelar', style: 'cancel' },
       {
         text: 'Descartar',

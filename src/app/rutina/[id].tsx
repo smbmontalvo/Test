@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { Alert, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
+import { showAlert } from '../../components/Dialog';
 import { Button, Card, EmptyState, IconButton, SectionTitle } from '../../components/ui';
 import { getExercise } from '../../data/exercises';
 import { useStartWorkout } from '../../hooks/useStartWorkout';
@@ -28,7 +29,7 @@ export default function RoutineEditScreen() {
   };
 
   const confirmDelete = () => {
-    Alert.alert('Eliminar rutina', `¿Seguro que quieres eliminar "${routine.name}"?`, [
+    showAlert('Eliminar rutina', `¿Seguro que quieres eliminar "${routine.name}"?`, [
       { text: 'Cancelar', style: 'cancel' },
       {
         text: 'Eliminar',

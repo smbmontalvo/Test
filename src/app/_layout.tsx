@@ -1,6 +1,7 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
+import { DialogHost } from '../components/Dialog';
 import { GymProvider } from '../store/GymContext';
 import { colors } from '../theme';
 
@@ -23,6 +24,7 @@ export default function RootLayout() {
         <Stack.Screen name="entrenamiento" options={{ title: 'Entrenamiento', gestureEnabled: false }} />
         <Stack.Screen name="elegir-ejercicio" options={{ title: 'Añadir ejercicio', presentation: 'modal' }} />
       </Stack>
+      <DialogHost />
     </GymProvider>
   );
 }

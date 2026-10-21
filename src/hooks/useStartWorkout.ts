@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { useCallback } from 'react';
-import { Alert } from 'react-native';
 
+import { showAlert } from '../components/Dialog';
 import { useGym } from '../store/GymContext';
 
 // Starts a workout and opens it, asking first if another one is in progress.
@@ -20,7 +20,7 @@ export function useStartWorkout() {
         return;
       }
 
-      Alert.alert('Entrenamiento en curso', `Ya tienes "${active.name}" sin terminar.`, [
+      showAlert('Entrenamiento en curso', `Ya tienes "${active.name}" sin terminar.`, [
         { text: 'Continuar el actual', onPress: () => router.push('/entrenamiento') },
         { text: 'Descartar y empezar', style: 'destructive', onPress: begin },
         { text: 'Cancelar', style: 'cancel' },

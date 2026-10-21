@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { showAlert } from '../../components/Dialog';
 import { Button, Card, EmptyState, Stat } from '../../components/ui';
 import { getExercise } from '../../data/exercises';
 import { useGym } from '../../store/GymContext';
@@ -17,7 +18,7 @@ export default function WorkoutDetailScreen() {
   }
 
   const confirmDelete = () => {
-    Alert.alert('Eliminar entrenamiento', 'Esta acción no se puede deshacer.', [
+    showAlert('Eliminar entrenamiento', 'Esta acción no se puede deshacer.', [
       { text: 'Cancelar', style: 'cancel' },
       {
         text: 'Eliminar',
