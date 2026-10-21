@@ -5,15 +5,16 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Avatar } from '../../components/Avatar';
-import { todayIndex as getTodayIndex, WEEK_DAYS } from '../../components/DayPicker';
+import { WEEK_DAYS } from '../../components/DayPicker';
 import { TodayChecklist } from '../../components/TodayChecklist';
 import { Button, Card } from '../../components/ui';
 import { getExercise } from '../../data/exercises';
 import { useStartWorkout } from '../../hooks/useStartWorkout';
 import { useGym } from '../../store/GymContext';
 import { colors, radius, spacing } from '../../theme';
-import type { Routine, Workout } from '../../types';
-import { nextRoutine } from '../../utils/progress';
+import type { Workout } from '../../types';
+import { useToday } from '../../hooks/useToday';
+import { hasSchedule, nextPlanned, todayPlan } from '../../utils/schedule';
 import {
   completedSets,
   formatDuration,
@@ -22,7 +23,6 @@ import {
   formatRelativeDay,
   formatWeight,
   greeting,
-  isSameDay,
   startOfWeek,
   toNumber,
   trainedDaysThisWeek,
@@ -36,12 +36,6 @@ const DAYS = WEEK_DAYS;
 
 const duration = (w: Workout) => (w.finishedAt ?? w.startedAt) - w.startedAt;
 
-function averageDuration(history: Workout[], routineId: string): number | null {
-  const past = history.filter((w) => w.routineId === routineId && w.finishedAt);
-  if (past.length === 0) return null;
-  return past.reduce((acc, w) => acc + duration(w), 0) / past.length;
-}
-
 function bestSets(w: Workout, limit: number) {
   return w.exercises.slice(0, limit).map((e) => {
     const best = e.sets.reduce((a, b) => (toNumber(b.weight) > toNumber(a.weight) ? b : a), e.sets[0]);
@@ -54,17 +48,13 @@ export default function HomeScreen() {
   const startWorkout = useStartWorkout();
   const insets = useSafeAreaInsets();
 
-  const suggested = nextRoutine(routines, history);
+  const now = useToday();
   const firstName = (profile.alias || profile.name).trim().split(/\s+/)[0];
 
   // Weekly plan: which routine is scheduled for today, and is it done already?
-  const today = getTodayIndex();
-  const todayRoutine = routines.find((r) => r.days?.includes(today));
-  const doneToday = todayRoutine
-    ? history.find((w) => w.routineId === todayRoutine.id && isSameDay(w.startedAt, Date.now()))
-    : undefined;
+  const { day: today, routine: todayRoutine, done: doneToday } = todayPlan(routines, history, now);
   const activeIsToday = !!active && active.routineId === todayRoutine?.id;
-  const hasPlan = routines.some((r) => r.days && r.days.length > 0);
+  const hasPlan = hasSchedule(routines);
   const upcoming = nextPlanned(routines, today);
 
   const last = history[0];
@@ -74,21 +64,21 @@ export default function HomeScreen() {
       ? Math.round(((workoutVolume(last) - workoutVolume(previousSame)) / workoutVolume(previousSame)) * 100)
       : null;
 
-  const weekStart = startOfWeek(Date.now());
+  const weekStart = startOfWeek(now);
   const thisWeek = history.filter((w) => w.startedAt >= weekStart);
   const weekVolume = thisWeek.reduce((acc, w) => acc + workoutVolume(w), 0);
-  const trainedDays = trainedDaysThisWeek(history);
-  const streak = weekStreak(history);
+  const trainedDays = trainedDaysThisWeek(history, now);
+  const streak = weekStreak(history, now);
 
   return (
     <ScrollView contentContainerStyle={[styles.container, { paddingTop: insets.top + spacing.lg }]}>
       <View style={styles.header}>
         <View style={{ flex: 1 }} accessible accessibilityRole="header">
           <Text style={styles.greeting}>
-            {greeting()}
+            {greeting(now)}
             {firstName ? `, ${firstName}` : ''}
           </Text>
-          <Text style={styles.date}>{capitalize(formatLongDate(Date.now()))}</Text>
+          <Text style={styles.date}>{capitalize(formatLongDate(now))}</Text>
         </View>
         <Pressable
           onPress={() => router.push('/perfil')}
@@ -107,7 +97,7 @@ export default function HomeScreen() {
           eyebrow="Entrenamiento en curso"
           icon="flash"
           title={active.name}
-          meta={`Empezaste hace ${formatDuration(Date.now() - active.startedAt)} · ${completedSets(active)} de ${active.exercises.reduce((n, e) => n + e.sets.length, 0)} series hechas`}
+          meta={`Empezaste hace ${formatDuration(now - active.startedAt)} · ${completedSets(active)} de ${active.exercises.reduce((n, e) => n + e.sets.length, 0)} series hechas`}
           action="Continuar entrenamiento"
           onPress={() => router.push('/entrenamiento')}
         />
@@ -147,33 +137,26 @@ export default function HomeScreen() {
               Próximo entrenamiento: <Text style={styles.restStrong}>{upcoming.routine.name}</Text>, {upcoming.when}.
             </Text>
           )}
-          {suggested && (
-            <Button
-              title="Entrenar igual"
-              icon="play"
-              variant="secondary"
-              accessibilityLabel={`Entrenar igual: empezar ${suggested.name}`}
-              onPress={() => startWorkout(suggested.id)}
-              style={{ alignSelf: 'flex-start', marginTop: spacing.sm }}
-            />
-          )}
         </View>
-      ) : suggested ? (
-        <HeroCard
-          eyebrow="Te toca hoy"
-          icon="barbell"
-          title={suggested.name}
-          meta={routineMeta(suggested, history)}
-          detail={suggested.exerciseIds
-            .slice(0, 3)
-            .map((id) => getExercise(id)?.name)
-            .filter(Boolean)
-            .join(' · ')}
-          action="Empezar"
-          actionLabel={`Empezar ${suggested.name}`}
-          onPress={() => startWorkout(suggested.id)}
-        />
-      ) : null}
+      ) : (
+        <View style={styles.restCard}>
+          <View style={styles.restHeader}>
+            <Ionicons name="calendar-outline" size={18} color={colors.accent} />
+            <Text style={styles.restEyebrow}>Sin plan todavía</Text>
+          </View>
+          <Text style={styles.restTitle}>Programa tu semana</Text>
+          <Text style={styles.restText}>
+            Elige qué días entrenas cada rutina y aquí aparecerá la lista del día, lista para marcar.
+          </Text>
+          <Button
+            title="Elegir días"
+            icon="calendar"
+            variant="secondary"
+            onPress={() => router.push('/rutinas')}
+            style={{ alignSelf: 'flex-start', marginTop: spacing.sm }}
+          />
+        </View>
+      )}
 
       <OptionRow
         icon="heart"
@@ -192,12 +175,12 @@ export default function HomeScreen() {
           <Pressable
             onPress={() => router.push(`/workout/${last.id}`)}
             accessibilityRole="button"
-            accessibilityLabel={`Último entrenamiento: ${last.name}, ${formatRelativeDay(last.startedAt)}. ${formatDuration(duration(last))}, ${completedSets(last)} series, ${formatNumber(workoutVolume(last))} kilos. Abrir detalle`}
+            accessibilityLabel={`Último entrenamiento: ${last.name}, ${formatRelativeDay(last.startedAt, now)}. ${formatDuration(duration(last))}, ${completedSets(last)} series, ${formatNumber(workoutVolume(last))} kilos. Abrir detalle`}
             style={({ pressed }) => pressed && { opacity: 0.8 }}
           >
             <Card style={styles.lastCard}>
               <View>
-                <Text style={styles.lastWhen}>{formatRelativeDay(last.startedAt)}</Text>
+                <Text style={styles.lastWhen}>{formatRelativeDay(last.startedAt, now)}</Text>
                 <Text style={styles.lastName}>{last.name}</Text>
               </View>
 
@@ -370,23 +353,6 @@ function Metric({ icon, value, label }: { icon: IconName; value: string; label: 
       <Text style={styles.metricLabel}>{label}</Text>
     </View>
   );
-}
-
-// First routine planned after today, with a friendly "mañana" / "el jueves".
-function nextPlanned(routines: Routine[], today: number) {
-  for (let k = 1; k <= 7; k++) {
-    const day = (today + k) % 7;
-    const routine = routines.find((r) => r.days?.includes(day));
-    if (routine) return { routine, when: k === 1 ? 'mañana' : `el ${WEEK_DAYS[day].long.toLowerCase()}` };
-  }
-  return undefined;
-}
-
-function routineMeta(r: Routine, history: Workout[]): string {
-  const avg = averageDuration(history, r.id);
-  const parts = [`${r.exerciseIds.length} ejercicios`];
-  if (avg) parts.push(`unos ${formatDuration(avg)}`);
-  return parts.join(' · ');
 }
 
 function capitalize(s: string) {

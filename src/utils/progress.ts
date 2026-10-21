@@ -1,4 +1,4 @@
-import type { Routine, Workout } from '../types';
+import type { Workout } from '../types';
 import { toNumber } from './stats';
 
 export type ExerciseProgress = {
@@ -11,14 +11,6 @@ export type ExerciseProgress = {
   gain: number;
   gainPct: number;
 };
-
-// Rotate through routines: suggest the one after the last routine trained.
-export function nextRoutine(routines: Routine[], history: Workout[]): Routine | undefined {
-  const last = history.find((w) => routines.some((r) => r.id === w.routineId));
-  if (!last) return routines[0];
-  const i = routines.findIndex((r) => r.id === last.routineId);
-  return routines[(i + 1) % routines.length];
-}
 
 // Heaviest weight per session; bodyweight exercises (0 kg) track reps instead.
 export function exerciseProgress(history: Workout[]): ExerciseProgress[] {

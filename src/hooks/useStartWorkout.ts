@@ -4,12 +4,12 @@ import { useCallback } from 'react';
 import { showAlert } from '../components/Dialog';
 import { useGym } from '../store/GymContext';
 
-// Starts a workout and opens it, asking first if another one is in progress.
+// Starts a routine's workout and opens it, asking first if another one is in progress.
 export function useStartWorkout() {
   const { active, startWorkout } = useGym();
 
   return useCallback(
-    (routineId?: string) => {
+    (routineId: string) => {
       const begin = () => {
         startWorkout(routineId);
         router.push('/entrenamiento');

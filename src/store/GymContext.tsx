@@ -22,7 +22,7 @@ type GymContextValue = GymState & {
   createRoutine: (name: string) => string;
   updateRoutine: (id: string, patch: Partial<Omit<Routine, 'id'>>) => void;
   deleteRoutine: (id: string) => void;
-  startWorkout: (routineId?: string) => void;
+  startWorkout: (routineId: string) => void;
   updateActive: (fn: (w: Workout) => Workout) => void;
   addExerciseToActive: (exerciseId: string) => void;
   finishWorkout: () => Workout | null;
@@ -108,15 +108,16 @@ export function GymProvider({ children }: { children: ReactNode }) {
     setState((s) => ({ ...s, routines: s.routines.filter((r) => r.id !== id) }));
   }, []);
 
-  const startWorkout = useCallback((routineId?: string) => {
+  const startWorkout = useCallback((routineId: string) => {
     setState((s) => {
       const routine = s.routines.find((r) => r.id === routineId);
+      if (!routine) return s;
       const active: Workout = {
         id: newId(),
-        name: routine?.name ?? 'Entrenamiento libre',
-        routineId: routine?.id,
+        name: routine.name,
+        routineId: routine.id,
         startedAt: Date.now(),
-        exercises: (routine?.exerciseIds ?? []).map((id) => buildExercise(s.history, id)),
+        exercises: routine.exerciseIds.map((id) => buildExercise(s.history, id)),
       };
       return { ...s, active };
     });

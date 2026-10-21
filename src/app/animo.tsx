@@ -5,10 +5,10 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Button, Card } from '../components/ui';
 import { getExercise } from '../data/exercises';
-import { useStartWorkout } from '../hooks/useStartWorkout';
 import { useGym } from '../store/GymContext';
 import { colors, radius, spacing } from '../theme';
-import { exerciseProgress, nextRoutine, recordsBroken, type ExerciseProgress } from '../utils/progress';
+import { exerciseProgress, recordsBroken, type ExerciseProgress } from '../utils/progress';
+import { hasSchedule, todayPlan } from '../utils/schedule';
 import { formatLongDate, formatNumber, formatWeight, weekStreak, workoutVolume } from '../utils/stats';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
@@ -25,8 +25,8 @@ const unitLabel = (p: ExerciseProgress, v: number) => (p.unit === 'kg' ? `${form
 
 export default function EncouragementScreen() {
   const { history, routines } = useGym();
-  const startWorkout = useStartWorkout();
-  const suggested = nextRoutine(routines, history);
+  const today = todayPlan(routines, history);
+  const pendingToday = today.routine && !today.done ? today.routine : undefined;
 
   if (history.length === 0) {
     return (
@@ -38,7 +38,11 @@ export default function EncouragementScreen() {
             Todavía no hay entrenamientos guardados. Cuando completes el primero, aquí verás cómo vas mejorando.
           </Text>
         </View>
-        <Button title="Empezar mi primer entrenamiento" icon="play" size="lg" onPress={() => startWorkout(suggested?.id)} />
+        {pendingToday ? (
+          <Button title={`Ir a ${pendingToday.name} de hoy`} icon="play" size="lg" onPress={() => router.back()} />
+        ) : !hasSchedule(routines) ? (
+          <Button title="Programar mi semana" icon="calendar" size="lg" onPress={() => router.push('/rutinas')} />
+        ) : null}
       </ScrollView>
     );
   }
@@ -112,13 +116,15 @@ export default function EncouragementScreen() {
       </Card>
 
       <View style={styles.actions}>
-        <Button
-          title="Entrenar aunque sea un poco"
-          icon="play"
-          size="lg"
-          accessibilityLabel={suggested ? `Empezar ${suggested.name}` : 'Empezar entrenamiento'}
-          onPress={() => startWorkout(suggested?.id)}
-        />
+        {pendingToday && (
+          <Button
+            title={`Ir a ${pendingToday.name} de hoy`}
+            icon="play"
+            size="lg"
+            accessibilityLabel={`Volver a Inicio para hacer ${pendingToday.name}`}
+            onPress={() => router.back()}
+          />
+        )}
         <Button title="Volver al inicio" variant="ghost" onPress={() => router.back()} />
       </View>
     </ScrollView>

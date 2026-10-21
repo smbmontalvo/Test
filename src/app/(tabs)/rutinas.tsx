@@ -5,13 +5,11 @@ import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-na
 import { DayPicker } from '../../components/DayPicker';
 import { Button, Card, EmptyState } from '../../components/ui';
 import { getExercise } from '../../data/exercises';
-import { useStartWorkout } from '../../hooks/useStartWorkout';
 import { useGym } from '../../store/GymContext';
 import { colors, radius, spacing } from '../../theme';
 
 export default function RoutinesScreen() {
   const { routines, createRoutine, updateRoutine } = useGym();
-  const startWorkout = useStartWorkout();
   const [name, setName] = useState('');
 
   const create = () => {
@@ -62,12 +60,6 @@ export default function RoutinesScreen() {
                   icon="create-outline"
                   variant="secondary"
                   onPress={() => router.push(`/rutina/${item.id}`)}
-                  style={{ flex: 1 }}
-                />
-                <Button
-                  title="Empezar"
-                  icon="play"
-                  onPress={() => startWorkout(item.id)}
                   style={{ flex: 1 }}
                 />
               </View>

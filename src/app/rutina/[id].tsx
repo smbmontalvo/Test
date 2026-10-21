@@ -5,14 +5,12 @@ import { showAlert } from '../../components/Dialog';
 import { DayPicker, formatDays } from '../../components/DayPicker';
 import { Button, Card, EmptyState, IconButton, SectionTitle } from '../../components/ui';
 import { getExercise } from '../../data/exercises';
-import { useStartWorkout } from '../../hooks/useStartWorkout';
 import { useGym } from '../../store/GymContext';
 import { colors, radius, spacing } from '../../theme';
 
 export default function RoutineEditScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { routines, updateRoutine, deleteRoutine } = useGym();
-  const startWorkout = useStartWorkout();
   const routine = routines.find((r) => r.id === id);
 
   if (!routine) {
@@ -89,12 +87,6 @@ export default function RoutineEditScreen() {
           icon="add"
           variant="secondary"
           onPress={() => router.push({ pathname: '/elegir-ejercicio', params: { rutina: routine.id } })}
-        />
-        <Button
-          title="Empezar esta rutina"
-          icon="play"
-          onPress={() => startWorkout(routine.id)}
-          disabled={routine.exerciseIds.length === 0}
         />
         <Button title="Eliminar rutina" icon="trash" variant="danger" onPress={confirmDelete} />
       </View>
