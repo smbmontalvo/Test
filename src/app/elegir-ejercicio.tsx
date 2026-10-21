@@ -7,10 +7,12 @@ import { EmptyState } from '../components/ui';
 import { allExercises } from '../data/exercises';
 import { useGym } from '../store/GymContext';
 import { colors, radius, spacing } from '../theme';
+import { useScreenInsets } from '../hooks/useScreenInsets';
 
 // Modal exercise picker. With ?rutina=<id> it adds to that routine,
 // otherwise it adds to the workout in progress.
 export default function ExercisePickerScreen() {
+  const inset = useScreenInsets();
   const { rutina } = useLocalSearchParams<{ rutina?: string }>();
   const { routines, updateRoutine, addExerciseToActive } = useGym();
   const [query, setQuery] = useState('');
@@ -36,7 +38,8 @@ export default function ExercisePickerScreen() {
     <FlatList
       data={filtered}
       keyExtractor={(e) => e.id}
-      contentContainerStyle={styles.container}
+      contentContainerStyle={[styles.container, { paddingTop: inset.top + spacing.lg, paddingBottom: inset.bottom + 40 }]}
+      scrollIndicatorInsets={{ top: inset.top, bottom: inset.bottom }}
       keyboardShouldPersistTaps="handled"
       ListHeaderComponent={
         <View>

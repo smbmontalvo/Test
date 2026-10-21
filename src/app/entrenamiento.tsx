@@ -21,6 +21,7 @@ import { useGym } from '../store/GymContext';
 import { colors, radius, spacing } from '../theme';
 import type { SetEntry, Workout } from '../types';
 import { completedSets, formatClock, formatNumber, workoutVolume } from '../utils/stats';
+import { useScreenInsets } from '../hooks/useScreenInsets';
 
 const DEFAULT_REST_SECONDS = 90;
 
@@ -34,6 +35,7 @@ function useNow(intervalMs = 1000) {
 }
 
 export default function ActiveWorkoutScreen() {
+  const inset = useScreenInsets();
   const { active, updateActive, finishWorkout, discardWorkout } = useGym();
   const insets = useSafeAreaInsets();
   const now = useNow();
@@ -145,7 +147,8 @@ export default function ActiveWorkoutScreen() {
           ),
         }}
       />
-      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={[styles.container, { paddingTop: inset.top + spacing.lg, paddingBottom: inset.bottom + 120 }]}
+      scrollIndicatorInsets={{ top: inset.top, bottom: inset.bottom }} keyboardShouldPersistTaps="handled">
         <TextInput
           value={active.name}
           onChangeText={(name) => updateActive((w): Workout => ({ ...w, name }))}

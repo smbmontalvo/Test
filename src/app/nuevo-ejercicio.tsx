@@ -7,12 +7,14 @@ import { EQUIPMENT_OPTIONS, MUSCLE_GROUPS, allExercises, nameKey } from '../data
 import { useGym } from '../store/GymContext';
 import { colors, radius, spacing } from '../theme';
 import type { MuscleGroup } from '../types';
+import { useScreenInsets } from '../hooks/useScreenInsets';
 
 const OTHER = 'Otro';
 
 // Form to create a custom exercise. Optional params prefill it:
 // ?nombre=<text> (from a search with no results) and ?musculo=<group>.
 export default function NewExerciseScreen() {
+  const inset = useScreenInsets();
   const params = useLocalSearchParams<{ nombre?: string; musculo?: string }>();
   const { addCustomExercise } = useGym();
   const [name, setName] = useState(params.nombre ?? '');
@@ -42,7 +44,8 @@ export default function NewExerciseScreen() {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={[styles.container, { paddingTop: inset.top + spacing.xl, paddingBottom: inset.bottom + spacing.xl }]}
+      scrollIndicatorInsets={{ top: inset.top, bottom: inset.bottom }} keyboardShouldPersistTaps="handled">
         <View style={styles.field}>
           <Text style={styles.label} nativeID="label-exercise-name">
             Nombre

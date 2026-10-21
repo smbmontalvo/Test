@@ -10,8 +10,10 @@ import { useGym } from '../../store/GymContext';
 import { colors, radius, spacing } from '../../theme';
 import type { Exercise, MuscleGroup } from '../../types';
 import { personalRecords } from '../../utils/stats';
+import { useScreenInsets } from '../../hooks/useScreenInsets';
 
 export default function ExercisesScreen() {
+  const inset = useScreenInsets();
   const { history, deleteCustomExercise } = useGym();
   const [query, setQuery] = useState('');
   const [muscle, setMuscle] = useState<MuscleGroup | null>(null);
@@ -39,7 +41,8 @@ export default function ExercisesScreen() {
     <FlatList
       data={filtered}
       keyExtractor={(e) => e.id}
-      contentContainerStyle={styles.container}
+      contentContainerStyle={[styles.container, { paddingTop: inset.top + spacing.lg, paddingBottom: inset.bottom + 40 }]}
+      scrollIndicatorInsets={{ top: inset.top, bottom: inset.bottom }}
       keyboardShouldPersistTaps="handled"
       ListHeaderComponent={
         <View style={{ gap: spacing.md, marginBottom: spacing.lg }}>

@@ -11,6 +11,7 @@ import { colors, muscleColors, radius, spacing } from '../theme';
 import { exerciseProgress, recordsBroken, type ExerciseProgress } from '../utils/progress';
 import { hasSchedule, todayPlan } from '../utils/schedule';
 import { formatLongDate, formatNumber, formatWeight, weekStreak, workoutVolume } from '../utils/stats';
+import { useScreenInsets } from '../hooks/useScreenInsets';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -23,13 +24,15 @@ const HARD_DAY_TIPS: { icon: IconName; text: string }[] = [
 const unitLabel = (p: ExerciseProgress, v: number) => (p.unit === 'kg' ? `${formatWeight(v)} kg` : `${v} reps`);
 
 export default function EncouragementScreen() {
+  const inset = useScreenInsets();
   const { history, routines } = useGym();
   const today = todayPlan(routines, history);
   const pendingToday = today.routine && !today.done ? today.routine : undefined;
 
   if (history.length === 0) {
     return (
-      <ScrollView contentContainerStyle={styles.container}>
+      <ScrollView contentContainerStyle={[styles.container, { paddingTop: inset.top + spacing.lg, paddingBottom: inset.bottom + 40 }]}
+      scrollIndicatorInsets={{ top: inset.top, bottom: inset.bottom }}>
         <View style={styles.hero}>
           <Text style={styles.heroEyebrow}>Todo empieza por uno</Text>
           <Text style={styles.heroTitle}>El primer entrenamiento es el más difícil</Text>
@@ -62,7 +65,8 @@ export default function EncouragementScreen() {
     : `Ya llevas ${history.length} entrenamientos. Eso es constancia.`;
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={[styles.container, { paddingTop: inset.top + spacing.lg, paddingBottom: inset.bottom + 40 }]}
+      scrollIndicatorInsets={{ top: inset.top, bottom: inset.bottom }}>
       <View style={styles.hero} accessible accessibilityRole="header">
         <Text style={styles.heroEyebrow}>Mira lo lejos que has llegado</Text>
         <Text style={styles.heroTitle}>{headline}</Text>

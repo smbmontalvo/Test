@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { Pressable, StyleSheet } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { useGym } from '../store/GymContext';
 import { radius } from '../theme';
@@ -17,7 +17,10 @@ export function ProfileButton() {
       accessibilityHint="Cambia tu foto, nombre o alias"
       style={({ pressed }) => [styles.button, pressed && { opacity: 0.7 }]}
     >
-      <Avatar profile={profile} size={38} />
+      {/* Extra translucent ring around the avatar's own white border. */}
+      <View style={styles.ring}>
+        <Avatar profile={profile} size={34} />
+      </View>
     </Pressable>
   );
 }
@@ -31,5 +34,12 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
+  },
+  ring: {
+    padding: 3,
+    borderRadius: radius.pill,
+    backgroundColor: 'rgba(255,255,255,0.45)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.85)',
   },
 });

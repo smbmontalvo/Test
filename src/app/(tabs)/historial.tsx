@@ -30,6 +30,7 @@ import {
   isSameDay,
   workoutVolume,
 } from '../../utils/stats';
+import { useScreenInsets } from '../../hooks/useScreenInsets';
 
 type WeekSection = {
   key: string;
@@ -55,6 +56,7 @@ function groupByWeek(history: Workout[], now: number): WeekSection[] {
 }
 
 export default function HistoryScreen() {
+  const inset = useScreenInsets();
   const { history } = useGym();
   const now = useToday();
   const sorted = useMemo(() => [...history].sort((a, b) => b.startedAt - a.startedAt), [history]);
@@ -65,7 +67,8 @@ export default function HistoryScreen() {
     <SectionList
       sections={sections}
       keyExtractor={(w) => w.id}
-      contentContainerStyle={[styles.container, history.length === 0 && styles.containerEmpty]}
+      contentContainerStyle={[styles.container, history.length === 0 && styles.containerEmpty, { paddingTop: inset.top + spacing.lg, paddingBottom: inset.bottom + 40 }]}
+      scrollIndicatorInsets={{ top: inset.top, bottom: inset.bottom }}
       stickySectionHeadersEnabled={false}
       ListHeaderComponent={history.length > 0 ? <MonthSummary history={sorted} records={records} now={now} /> : undefined}
       ListEmptyComponent={<HistoryEmpty />}

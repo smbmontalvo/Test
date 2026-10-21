@@ -8,8 +8,10 @@ import { showAlert } from '../components/Dialog';
 import { Button } from '../components/ui';
 import { useGym } from '../store/GymContext';
 import { colors, radius, spacing } from '../theme';
+import { useScreenInsets } from '../hooks/useScreenInsets';
 
 export default function ProfileScreen() {
+  const inset = useScreenInsets();
   const { profile, updateProfile } = useGym();
   const [name, setName] = useState(profile.name);
   const [alias, setAlias] = useState(profile.alias);
@@ -40,7 +42,8 @@ export default function ProfileScreen() {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={[styles.container, { paddingTop: inset.top + spacing.xl, paddingBottom: inset.bottom + spacing.xl }]}
+      scrollIndicatorInsets={{ top: inset.top, bottom: inset.bottom }} keyboardShouldPersistTaps="handled">
         <View style={styles.photoBlock}>
           <Avatar profile={{ name, alias, photo }} size={112} />
           <View style={styles.photoActions}>

@@ -26,6 +26,7 @@ import {
   weekStreak,
   workoutVolume,
 } from '../../utils/stats';
+import { useScreenInsets } from '../../hooks/useScreenInsets';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -41,6 +42,7 @@ function bestSets(w: Workout, limit: number) {
 }
 
 export default function HomeScreen() {
+  const inset = useScreenInsets();
   const { profile, history, routines, active, startWorkout, setExerciseDone, closeStaleWorkout } = useGym();
 
   const now = useToday();
@@ -68,7 +70,8 @@ export default function HomeScreen() {
   const streak = weekStreak(history, now);
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={[styles.container, { paddingTop: inset.top + spacing.xs, paddingBottom: inset.bottom + 32 }]}
+      scrollIndicatorInsets={{ top: inset.top, bottom: inset.bottom }}>
       <View accessible accessibilityRole="header">
         <Text style={styles.greeting}>
           {greeting(now)}

@@ -7,8 +7,10 @@ import { Button, Card, EmptyState } from '../../components/ui';
 import { getExercise } from '../../data/exercises';
 import { useGym } from '../../store/GymContext';
 import { colors, radius, spacing } from '../../theme';
+import { useScreenInsets } from '../../hooks/useScreenInsets';
 
 export default function RoutinesScreen() {
+  const inset = useScreenInsets();
   const { routines, createRoutine, updateRoutine } = useGym();
   const [name, setName] = useState('');
 
@@ -24,7 +26,8 @@ export default function RoutinesScreen() {
     <FlatList
       data={routines}
       keyExtractor={(r) => r.id}
-      contentContainerStyle={styles.container}
+      contentContainerStyle={[styles.container, { paddingTop: inset.top + spacing.lg, paddingBottom: inset.bottom + 40 }]}
+      scrollIndicatorInsets={{ top: inset.top, bottom: inset.bottom }}
       keyboardShouldPersistTaps="handled"
       ListHeaderComponent={
         <View style={styles.newRow}>

@@ -7,8 +7,10 @@ import { Button, Card, EmptyState, IconButton, SectionTitle } from '../../compon
 import { getExercise } from '../../data/exercises';
 import { useGym } from '../../store/GymContext';
 import { colors, radius, spacing } from '../../theme';
+import { useScreenInsets } from '../../hooks/useScreenInsets';
 
 export default function RoutineEditScreen() {
+  const inset = useScreenInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { routines, updateRoutine, deleteRoutine } = useGym();
   const routine = routines.find((r) => r.id === id);
@@ -42,7 +44,8 @@ export default function RoutineEditScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+    <ScrollView contentContainerStyle={[styles.container, { paddingTop: inset.top + spacing.lg, paddingBottom: inset.bottom + 40 }]}
+      scrollIndicatorInsets={{ top: inset.top, bottom: inset.bottom }} keyboardShouldPersistTaps="handled">
       <Text style={styles.label}>Nombre</Text>
       <TextInput
         value={routine.name}
