@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
   container: { padding: spacing.lg, paddingBottom: 120 },
   finishButton: {
     backgroundColor: colors.accentSoft,
-    paddingVertical: 4,
+    paddingVertical: 6,
     paddingHorizontal: spacing.md,
     borderRadius: radius.pill,
     marginHorizontal: spacing.sm,
@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'center',
     gap: 4,
-    paddingVertical: 4,
+    paddingVertical: 6,
     paddingHorizontal: spacing.md,
     borderRadius: radius.pill,
     backgroundColor: colors.accentSoft,
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
   restText: { flex: 1, color: colors.primaryText, fontWeight: '800', fontSize: 17 },
   restBtn: {
     backgroundColor: colors.card,
-    paddingVertical: 3,
+    paddingVertical: 5,
     paddingHorizontal: 12,
     borderRadius: radius.pill,
   },

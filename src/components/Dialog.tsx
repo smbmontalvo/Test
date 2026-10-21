@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
   title: { color: colors.text, fontSize: 18, fontWeight: '800' },
   message: { color: colors.muted, fontSize: 15, lineHeight: 21 },
   buttons: { gap: spacing.sm, marginTop: spacing.md },
-  button: { paddingVertical: 6, borderRadius: radius.pill, alignItems: 'center' },
+  button: { paddingVertical: 9, borderRadius: radius.pill, alignItems: 'center' },
   primary: { backgroundColor: colors.accentSoft },
   cancel: { backgroundColor: colors.cardAlt },
   destructive: { backgroundColor: colors.dangerSoft },
