@@ -8,14 +8,14 @@ import { ActivityRings, type Ring } from '../../components/home/ActivityRings';
 import { WeekStrip } from '../../components/home/WeekStrip';
 import { Burst, CountUp, FadeInUp, haptic, Pop, PressScale } from '../../components/motion';
 import { Button } from '../../components/ui';
-import { getExercise } from '../../data/exercises';
 import { useScreenInsets } from '../../hooks/useScreenInsets';
 import { useStartWorkout } from '../../hooks/useStartWorkout';
 import { useToday } from '../../hooks/useToday';
 import { useGym } from '../../store/GymContext';
 import { colors, muscleColors, radius, spacing } from '../../theme';
-import type { MuscleGroup, Routine, Workout } from '../../types';
+import type { MuscleGroup, Workout } from '../../types';
 import { cardioWeek } from '../../utils/cardio';
+import { plannedMeta, routineMuscles } from '../../utils/routines';
 import { hasSchedule, nextPlanned, todayPlan } from '../../utils/schedule';
 import {
   completedSets,
@@ -142,7 +142,7 @@ export default function HomeScreen() {
             eyebrow={`Hoy toca · ${DAYS[today].long}`}
             icon="calendar"
             title={todayRoutine.name}
-            meta={plannedMeta(todayRoutine.exerciseIds.length, history, todayRoutine.id)}
+            meta={plannedMeta(todayRoutine, history)}
             muscles={routineMuscles(todayRoutine)}
             action="Iniciar entrenamiento"
             actionLabel={`Iniciar entrenamiento de ${todayRoutine.name}`}
@@ -366,22 +366,6 @@ function MiniBars({ values, today, color }: { values: number[]; today: number; c
       ))}
     </View>
   );
-}
-
-function routineMuscles(r: Routine): MuscleGroup[] {
-  const seen: MuscleGroup[] = [];
-  for (const id of r.exerciseIds) {
-    const m = getExercise(id)?.muscle;
-    if (m && !seen.includes(m)) seen.push(m);
-  }
-  return seen.slice(0, 4);
-}
-
-function plannedMeta(exerciseCount: number, history: Workout[], routineId: string): string {
-  const past = history.filter((w) => w.routineId === routineId && w.finishedAt);
-  const parts = [`${exerciseCount} ejercicios`];
-  if (past.length > 0) parts.push(`unos ${formatDuration(past.reduce((acc, w) => acc + duration(w), 0) / past.length)}`);
-  return parts.join(' · ');
 }
 
 const styles = StyleSheet.create({
