@@ -22,7 +22,7 @@ export default function RootLayout() {
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="rutina/[id]" options={{ title: 'Editar rutina' }} />
-        <Stack.Screen name="workout/[id]" options={{ title: 'Detalle' }} />
+        <Stack.Screen name="workout/[id]" options={{ title: 'Entrenamiento' }} />
         <Stack.Screen name="entrenamiento" options={{ title: 'Entrenamiento', gestureEnabled: false }} />
         <Stack.Screen name="perfil" options={{ title: 'Tu perfil', presentation: 'modal', headerRight: () => null }} />
         <Stack.Screen name="animo" options={{ title: 'Tu progreso' }} />

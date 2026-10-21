@@ -48,11 +48,13 @@ export function personalRecords(history: Workout[]): Record<string, PersonalReco
   return prs;
 }
 
+// Monday 00:00 of the week containing ts. Uses calendar dates rather than
+// fixed 24 h steps so daylight-saving changes don't shift the boundary.
 export function startOfWeek(ts: number): number {
   const d = new Date(ts);
   d.setHours(0, 0, 0, 0);
-  const daysSinceMonday = (d.getDay() + 6) % 7;
-  return d.getTime() - daysSinceMonday * DAY_MS;
+  d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  return d.getTime();
 }
 
 // Days (0 = Monday) of the current week that have at least one workout.
@@ -60,7 +62,7 @@ export function trainedDaysThisWeek(history: Workout[], now = Date.now()): Set<n
   const weekStart = startOfWeek(now);
   const days = new Set<number>();
   for (const w of history) {
-    if (w.startedAt >= weekStart) days.add(Math.floor((w.startedAt - weekStart) / DAY_MS));
+    if (w.startedAt >= weekStart) days.add((new Date(w.startedAt).getDay() + 6) % 7);
   }
   return days;
 }

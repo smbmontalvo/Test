@@ -1,6 +1,6 @@
 import { getExercise, MUSCLE_GROUPS } from '../../data/exercises';
 import type { MuscleGroup, SetEntry, Workout } from '../../types';
-import { formatRelativeDay, startOfWeek, toNumber } from '../../utils/stats';
+import { formatRelativeDay, toNumber } from '../../utils/stats';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const MONTHS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
@@ -95,23 +95,35 @@ export function bestSetIndex(sets: SetEntry[]): number {
 export function shortWorkoutName(name: string): string {
   const match = /^(.*\S)\s*\(([^)]*)\)\s*$/.exec(name);
   if (!match) return name;
-  const norm = (s: string) => s.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const accents: Record<string, string> = { á: 'a', é: 'e', í: 'i', ó: 'o', ú: 'u' };
+  const norm = (s: string) => s.trim().toLowerCase().replace(/[áéíóú]/g, (c) => accents[c]);
   const parts = match[2].split(/,|\by\b/).map(norm).filter(Boolean);
   const muscles = MUSCLE_GROUPS.map(norm);
   const onlyMuscles = parts.length > 0 && parts.every((p) => muscles.some((m) => m.startsWith(p) || p.startsWith(m)));
   return onlyMuscles ? match[1] : name;
 }
 
+// Monday 00:00 of the week containing ts. Uses calendar days rather than
+// fixed 24 h steps so weeks with a daylight-saving change stay in one group.
+export function weekStart(ts: number): number {
+  const d = new Date(ts);
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  return d.getTime();
+}
+
 export type WeekLabel = { title: string; spoken: string };
 
 // "Esta semana", "Semana pasada", or the Monday–Sunday range ("13 – 19 oct").
-export function weekLabel(weekStart: number, now: number): WeekLabel {
-  const current = startOfWeek(now);
-  if (weekStart === current) return { title: 'Esta semana', spoken: 'Esta semana' };
-  if (weekStart === startOfWeek(current - DAY_MS)) return { title: 'Semana pasada', spoken: 'Semana pasada' };
+export function weekLabel(monday: number, now: number): WeekLabel {
+  const current = weekStart(now);
+  if (monday === current) return { title: 'Esta semana', spoken: 'Esta semana' };
+  const previous = new Date(current);
+  previous.setDate(previous.getDate() - 7);
+  if (monday === previous.getTime()) return { title: 'Semana pasada', spoken: 'Semana pasada' };
 
-  const start = new Date(weekStart);
-  const end = new Date(weekStart);
+  const start = new Date(monday);
+  const end = new Date(monday);
   end.setDate(end.getDate() + 6);
   const sameMonth = start.getMonth() === end.getMonth();
   const year = end.getFullYear() !== new Date(now).getFullYear() ? ` ${end.getFullYear()}` : '';
