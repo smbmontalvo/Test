@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Alert, Modal, Platform, Pressable, StyleSheet, Text, View, type AlertButton } from 'react-native';
 
 import { colors, radius, spacing } from '../theme';
+import { FadeInUp } from './motion';
 
 type DialogState = { title: string; message?: string; buttons: AlertButton[] };
 
@@ -36,7 +37,7 @@ export function DialogHost() {
   return (
     <Modal transparent animationType="fade" onRequestClose={() => setDialog(null)}>
       <View style={styles.backdrop}>
-        <View style={styles.box}>
+        <FadeInUp distance={24} style={styles.box}>
           <Text style={styles.title}>{dialog.title}</Text>
           {dialog.message ? <Text style={styles.message}>{dialog.message}</Text> : null}
           <View style={styles.buttons}>
@@ -62,7 +63,7 @@ export function DialogHost() {
               </Pressable>
             ))}
           </View>
-        </View>
+        </FadeInUp>
       </View>
     </Modal>
   );

@@ -1,22 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo, Animated, Easing, Platform, StyleSheet, Text, View } from 'react-native';
+import { Animated, Easing, Platform, StyleSheet, Text, View } from 'react-native';
 
 import { colors } from '../theme';
+import { useReduceMotion } from './motion';
 
 const TICK_WIDTH = 3;
 const TICK_GAP = 3;
 const TICK_HEIGHT = 24;
 const STAGGER_MS = 16;
-
-function useReduceMotion(): boolean {
-  const [reduce, setReduce] = useState(false);
-  useEffect(() => {
-    AccessibilityInfo.isReduceMotionEnabled().then(setReduce).catch(() => {});
-    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduce);
-    return () => sub.remove();
-  }, []);
-  return reduce;
-}
 
 // A bar drawn as a row of thin vertical ticks. On mount the ticks rise one
 // after another from left to right, and the percentage counts up alongside.

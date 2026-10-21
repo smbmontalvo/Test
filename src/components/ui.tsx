@@ -3,6 +3,7 @@ import type { ComponentProps, ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { colors, radius, spacing } from '../theme';
+import { PressScale } from './motion';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -34,26 +35,26 @@ export function Button({
 }: ButtonProps) {
   const fg = variant === 'danger' ? colors.dangerText : colors.accent;
   return (
-    <Pressable
+    <PressScale
       onPress={onPress}
       disabled={disabled}
       hitSlop={8}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? title}
       accessibilityState={{ disabled: !!disabled }}
-      style={({ pressed }) => [
+      style={[
         styles.button,
         size === 'lg' && styles.buttonLarge,
         variant === 'primary' && { backgroundColor: colors.accentSoft },
         variant === 'secondary' && styles.buttonSecondary,
         variant === 'danger' && { backgroundColor: colors.dangerSoft },
-        (pressed || disabled) && { opacity: 0.6 },
+        disabled && { opacity: 0.6 },
         style,
       ]}
     >
       {icon && <Ionicons name={icon} size={size === 'lg' ? 20 : 15} color={fg} />}
       <Text style={[styles.buttonText, size === 'lg' && styles.buttonTextLarge, { color: fg }]}>{title}</Text>
-    </Pressable>
+    </PressScale>
   );
 }
 

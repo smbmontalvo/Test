@@ -34,6 +34,7 @@ import {
   workoutVolume,
 } from '../../utils/stats';
 import { useScreenInsets } from '../../hooks/useScreenInsets';
+import { FadeInUp } from '../../components/motion';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -127,7 +128,11 @@ export default function WorkoutDetailScreen() {
           <Text style={styles.emptyText}>No se completó ninguna serie en este entrenamiento.</Text>
         </Card>
       ) : (
-        exercises.map((e, i) => <ExerciseCard key={`${e.exerciseId}-${i}`} entry={e} isPr={prs.has(e.exerciseId)} />)
+        exercises.map((e, i) => (
+          <FadeInUp key={`${e.exerciseId}-${i}`} delay={120 + Math.min(i, 6) * 70}>
+            <ExerciseCard entry={e} isPr={prs.has(e.exerciseId)} />
+          </FadeInUp>
+        ))
       )}
 
       <Button

@@ -11,6 +11,7 @@ import { colors, radius, spacing } from '../../theme';
 import type { Exercise, MuscleGroup } from '../../types';
 import { personalRecords } from '../../utils/stats';
 import { useScreenInsets } from '../../hooks/useScreenInsets';
+import { FadeInUp } from '../../components/motion';
 
 export default function ExercisesScreen() {
   const inset = useScreenInsets();
@@ -83,9 +84,10 @@ export default function ExercisesScreen() {
         </View>
       }
       ItemSeparatorComponent={() => <View style={{ height: spacing.sm }} />}
-      renderItem={({ item }) => {
+      renderItem={({ item, index }) => {
         const pr = prs[item.id];
         return (
+          <FadeInUp delay={Math.min(index, 8) * 35}>
           <Card style={styles.row}>
             <View style={{ flex: 1 }}>
               <View style={styles.nameRow}>
@@ -120,6 +122,7 @@ export default function ExercisesScreen() {
               </Pressable>
             )}
           </Card>
+          </FadeInUp>
         );
       }}
     />

@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { FlatList, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { DayPicker } from '../../components/DayPicker';
 import { Button, Card, EmptyState } from '../../components/ui';
@@ -8,6 +8,7 @@ import { getExercise } from '../../data/exercises';
 import { useGym } from '../../store/GymContext';
 import { colors, radius, spacing } from '../../theme';
 import { useScreenInsets } from '../../hooks/useScreenInsets';
+import { FadeInUp, PressScale } from '../../components/motion';
 
 export default function RoutinesScreen() {
   const inset = useScreenInsets();
@@ -46,10 +47,11 @@ export default function RoutinesScreen() {
       ListEmptyComponent={
         <EmptyState icon="barbell-outline" title="Sin rutinas" text="Crea tu primera rutina para empezar a entrenar." />
       }
-      renderItem={({ item }) => {
+      renderItem={({ item, index }) => {
         const names = item.exerciseIds.map((id) => getExercise(id)?.name).filter(Boolean);
         return (
-          <Pressable onPress={() => router.push(`/rutina/${item.id}`)}>
+          <FadeInUp delay={Math.min(index, 5) * 60}>
+          <PressScale pressedScale={0.98} onPress={() => router.push(`/rutina/${item.id}`)}>
             <Card style={styles.card}>
               <Text style={styles.name}>{item.name}</Text>
               <Text style={styles.exercises} numberOfLines={2}>
@@ -67,7 +69,8 @@ export default function RoutinesScreen() {
                 />
               </View>
             </Card>
-          </Pressable>
+          </PressScale>
+          </FadeInUp>
         );
       }}
       ItemSeparatorComponent={() => <View style={{ height: spacing.md }} />}

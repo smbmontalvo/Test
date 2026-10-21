@@ -1,9 +1,10 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
-import { useEffect, type ComponentProps } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useRef, useState, type ComponentProps } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { WEEK_DAYS } from '../../components/DayPicker';
+import { Burst, FadeInUp, haptic, Pop, PressScale } from '../../components/motion';
 import { TodayChecklist } from '../../components/TodayChecklist';
 import { Button, Card } from '../../components/ui';
 import { getExercise } from '../../data/exercises';
@@ -54,6 +55,17 @@ export default function HomeScreen() {
   const { day: today, routine: todayRoutine, done: doneToday } = todayPlan(routines, history, now);
   const activeIsToday = !!active && active.routineId === todayRoutine?.id;
   const hasPlan = hasSchedule(routines);
+
+  // Celebrate only the moment today's workout gets completed, not on every visit.
+  const wasDone = useRef(!!doneToday);
+  const [celebrate, setCelebrate] = useState(false);
+  useEffect(() => {
+    if (doneToday && !wasDone.current) {
+      setCelebrate(true);
+      haptic.success();
+    }
+    wasDone.current = !!doneToday;
+  }, [doneToday]);
   const upcoming = nextPlanned(routines, today);
 
   const last = history[0];
@@ -72,14 +84,17 @@ export default function HomeScreen() {
   return (
     <ScrollView contentContainerStyle={[styles.container, { paddingTop: inset.top + spacing.xs, paddingBottom: inset.bottom + 32 }]}
       scrollIndicatorInsets={{ top: inset.top, bottom: inset.bottom }}>
-      <View accessible accessibilityRole="header">
-        <Text style={styles.greeting}>
-          {greeting(now)}
-          {firstName ? `, ${firstName}` : ''}
-        </Text>
-        <Text style={styles.date}>{capitalize(formatLongDate(now))}</Text>
-      </View>
+      <FadeInUp>
+        <View accessible accessibilityRole="header">
+          <Text style={styles.greeting}>
+            {greeting(now)}
+            {firstName ? `, ${firstName}` : ''}
+          </Text>
+          <Text style={styles.date}>{capitalize(formatLongDate(now))}</Text>
+        </View>
+      </FadeInUp>
 
+      <FadeInUp delay={80}>
       {active && !activeIsToday ? (
         <HeroCard
           eyebrow="Entrenamiento en curso"
@@ -91,8 +106,11 @@ export default function HomeScreen() {
         />
       ) : todayRoutine && doneToday && !active ? (
         <View style={styles.doneCard} accessible accessibilityRole="header">
-          <View style={styles.doneIcon}>
-            <Ionicons name="checkmark" size={26} color={colors.primaryText} />
+          <View style={styles.doneIconWrap}>
+            {celebrate && <Burst size={160} />}
+            <Pop visible style={styles.doneIcon}>
+              <Ionicons name="checkmark" size={26} color={colors.primaryText} />
+            </Pop>
           </View>
           <Text style={styles.doneTitle}>¡Entrenamiento completado!</Text>
           <Text style={styles.doneMeta}>
@@ -157,26 +175,29 @@ export default function HomeScreen() {
           />
         </View>
       )}
+      </FadeInUp>
 
-      <OptionRow
-        icon="heart"
-        title="Me estoy desanimando"
-        subtitle="Mira todo lo que has mejorado"
-        accessibilityLabel="Me estoy desanimando. Ver un resumen de cómo has mejorado"
-        onPress={() => router.push('/animo')}
-        tone="support"
-      />
+      <FadeInUp delay={160}>
+        <OptionRow
+          icon="heart"
+          title="Me estoy desanimando"
+          subtitle="Mira todo lo que has mejorado"
+          accessibilityLabel="Me estoy desanimando. Ver un resumen de cómo has mejorado"
+          onPress={() => router.push('/animo')}
+          tone="support"
+        />
+      </FadeInUp>
 
       {last && (
-        <>
+        <FadeInUp delay={240} style={{ gap: spacing.md }}>
           <Text style={styles.sectionTitle} accessibilityRole="header">
             Último entrenamiento
           </Text>
-          <Pressable
+          <PressScale
+            pressedScale={0.98}
             onPress={() => router.push(`/workout/${last.id}`)}
             accessibilityRole="button"
             accessibilityLabel={`Último entrenamiento: ${last.name}, ${formatRelativeDay(last.startedAt, now)}. ${formatDuration(duration(last))}, ${completedSets(last)} series, ${formatNumber(workoutVolume(last))} kilos. Abrir detalle`}
-            style={({ pressed }) => pressed && { opacity: 0.8 }}
           >
             <Card style={styles.lastCard}>
               <View>
@@ -218,10 +239,11 @@ export default function HomeScreen() {
                 ))}
               </View>
             </Card>
-          </Pressable>
-        </>
+          </PressScale>
+        </FadeInUp>
       )}
 
+      <FadeInUp delay={320} style={{ gap: spacing.md }}>
       <Text style={styles.sectionTitle} accessibilityRole="header">
         Esta semana
       </Text>
@@ -238,7 +260,11 @@ export default function HomeScreen() {
                 accessibilityLabel={`${day.long}${isToday ? ', hoy' : ''}: ${done ? 'entrenado' : 'sin entrenar'}`}
               >
                 <View style={[styles.dayDot, done && styles.dayDotDone, isToday && !done && styles.dayDotToday]}>
-                  {done && <Ionicons name="checkmark" size={16} color={colors.primaryText} />}
+                  {done && (
+                    <Pop visible>
+                      <Ionicons name="checkmark" size={16} color={colors.primaryText} />
+                    </Pop>
+                  )}
                 </View>
                 <Text style={[styles.dayLabel, isToday && styles.dayLabelToday]}>{day.short}</Text>
               </View>
@@ -260,6 +286,7 @@ export default function HomeScreen() {
           </View>
         )}
       </Card>
+      </FadeInUp>
     </ScrollView>
   );
 }
@@ -327,11 +354,12 @@ function OptionRow({
   tone?: 'default' | 'support';
 }) {
   return (
-    <Pressable
+    <PressScale
+      pressedScale={0.97}
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? `${title}. ${subtitle}`}
-      style={({ pressed }) => [styles.option, tone === 'support' && styles.optionSupport, pressed && { opacity: 0.7 }]}
+      style={[styles.option, tone === 'support' && styles.optionSupport]}
     >
       <View style={[styles.optionIcon, tone === 'support' && styles.optionIconSupport]}>
         <Ionicons name={icon} size={20} color={tone === 'support' ? colors.support : colors.accent} />
@@ -341,7 +369,7 @@ function OptionRow({
         <Text style={styles.optionSubtitle}>{subtitle}</Text>
       </View>
       <Ionicons name="chevron-forward" size={20} color={colors.muted} />
-    </Pressable>
+    </PressScale>
   );
 }
 
@@ -398,6 +426,7 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     marginTop: spacing.sm,
   },
+  doneIconWrap: { alignSelf: 'flex-start', marginBottom: spacing.sm },
   doneIcon: {
     width: 44,
     height: 44,
@@ -405,7 +434,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: spacing.sm,
   },
   doneTitle: { color: colors.primaryText, fontSize: 26, fontWeight: '800', letterSpacing: -0.3 },
   doneMeta: { color: colors.primaryText, fontSize: 16, fontWeight: '600' },

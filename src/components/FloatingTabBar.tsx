@@ -1,9 +1,10 @@
 import type { BottomTabBarProps } from 'expo-router/tabs';
-import { useEffect, useRef, useState } from 'react';
-import { Animated, Platform, Pressable, StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { Animated, Platform, StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
 
 import { colors, radius } from '../theme';
 import { GlassFill } from './Glass';
+import { haptic, PressScale } from './motion';
 
 const BAR_PADDING = 6;
 
@@ -61,26 +62,45 @@ export function FloatingTabBar({
 
           const onPress = () => {
             const event = emitter.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
-            if (!focused && !event.defaultPrevented) navigateToTab(route.key);
+            if (!focused && !event.defaultPrevented) {
+              haptic.select();
+              navigateToTab(route.key);
+            }
           };
 
           return (
-            <Pressable
+            <PressScale
               key={route.key}
               onPress={onPress}
+              pressedScale={0.9}
               role="tab"
               aria-selected={focused}
               accessibilityLabel={label}
               style={styles.tab}
             >
-              {options.tabBarIcon?.({ focused, color, size: 22 })}
+              <BounceOnFocus focused={focused}>{options.tabBarIcon?.({ focused, color, size: 22 })}</BounceOnFocus>
               <Text style={[styles.label, { color }, focused && styles.labelActive]}>{label}</Text>
-            </Pressable>
+            </PressScale>
           );
         })}
       </View>
     </View>
   );
+}
+
+// The icon gives a small hop when its tab becomes active.
+function BounceOnFocus({ focused, children }: { focused: boolean; children: ReactNode }) {
+  const lift = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    if (!focused) return;
+    Animated.sequence([
+      Animated.timing(lift, { toValue: 1, duration: 140, useNativeDriver: Platform.OS !== 'web' }),
+      Animated.spring(lift, { toValue: 0, useNativeDriver: Platform.OS !== 'web', speed: 14, bounciness: 12 }),
+    ]).start();
+  }, [focused, lift]);
+  const translateY = lift.interpolate({ inputRange: [0, 1], outputRange: [0, -5] });
+  const scale = lift.interpolate({ inputRange: [0, 1], outputRange: [1, 1.12] });
+  return <Animated.View style={{ transform: [{ translateY }, { scale }] }}>{children}</Animated.View>;
 }
 
 const styles = StyleSheet.create({

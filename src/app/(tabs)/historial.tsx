@@ -1,7 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { useMemo } from 'react';
-import { Pressable, SectionList, StyleSheet, Text, View } from 'react-native';
+import { SectionList, StyleSheet, Text, View } from 'react-native';
 
 import {
   MONTHS_LONG,
@@ -31,6 +31,7 @@ import {
   workoutVolume,
 } from '../../utils/stats';
 import { useScreenInsets } from '../../hooks/useScreenInsets';
+import { FadeInUp, PressScale } from '../../components/motion';
 
 type WeekSection = {
   key: string;
@@ -89,7 +90,11 @@ export default function HistoryScreen() {
         </View>
       )}
       ItemSeparatorComponent={() => <View style={{ height: spacing.sm }} />}
-      renderItem={({ item }) => <WorkoutRow workout={item} prCount={records.get(item.id)?.size ?? 0} now={now} />}
+      renderItem={({ item, index }) => (
+        <FadeInUp delay={Math.min(index, 6) * 50}>
+          <WorkoutRow workout={item} prCount={records.get(item.id)?.size ?? 0} now={now} />
+        </FadeInUp>
+      )}
     />
   );
 }
@@ -180,12 +185,13 @@ function WorkoutRow({ workout, prCount, now }: { workout: Workout; prCount: numb
     .join('. ');
 
   return (
-    <Pressable
+    <PressScale
+      pressedScale={0.98}
       onPress={() => router.push(`/workout/${workout.id}`)}
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityHint="Abre el detalle del entrenamiento"
-      style={({ pressed }) => [styles.row, pressed && { opacity: 0.75 }]}
+      style={styles.row}
     >
       <View style={[styles.dateChip, isToday && styles.dateChipToday]}>
         <Text style={[styles.dateWeekday, isToday && styles.dateTextToday]}>{WEEKDAYS_SHORT[date.getDay()]}</Text>
@@ -206,7 +212,7 @@ function WorkoutRow({ workout, prCount, now }: { workout: Workout; prCount: numb
       </View>
 
       <Ionicons name="chevron-forward" size={18} color={colors.muted} />
-    </Pressable>
+    </PressScale>
   );
 }
 

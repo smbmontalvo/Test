@@ -1,11 +1,13 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useRef } from 'react';
+import { Animated, Easing, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { getExercise } from '../data/exercises';
 import { buildExercise } from '../store/GymContext';
 import { colors, radius, spacing } from '../theme';
 import type { Routine, Workout, WorkoutExercise } from '../types';
 import { formatWeight, toNumber } from '../utils/stats';
+import { FadeInUp, haptic, Pop, PressScale } from './motion';
 
 function setSummary(e: WorkoutExercise): string {
   const n = e.sets.length;
@@ -36,6 +38,18 @@ export function TodayChecklist({
   const isDone = (e: WorkoutExercise) => e.sets.length > 0 && e.sets.every((s) => s.done);
   const doneCount = exercises.filter(isDone).length;
 
+  // Progress bar glides to its new length instead of jumping.
+  const progress = useRef(new Animated.Value(exercises.length ? doneCount / exercises.length : 0)).current;
+  useEffect(() => {
+    Animated.timing(progress, {
+      toValue: exercises.length ? doneCount / exercises.length : 0,
+      duration: 420,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: false,
+    }).start();
+  }, [doneCount, exercises.length, progress]);
+  const fillWidth = progress.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] });
+
   return (
     <View style={styles.card}>
       <View style={styles.eyebrowRow}>
@@ -52,7 +66,7 @@ export function TodayChecklist({
         accessibilityLabel={`${doneCount} de ${exercises.length} ejercicios listos`}
       >
         <View style={styles.track}>
-          <View style={[styles.fill, { width: `${exercises.length ? (doneCount / exercises.length) * 100 : 0}%` }]} />
+          <Animated.View style={[styles.fill, { width: fillWidth }]} />
         </View>
         <Text style={styles.progressText}>
           {doneCount} de {exercises.length} listos
@@ -64,7 +78,7 @@ export function TodayChecklist({
           const done = isDone(e);
           const name = getExercise(e.exerciseId)?.name ?? e.exerciseId;
           return (
-            <View key={e.exerciseId} style={[styles.row, i > 0 && styles.rowDivider]}>
+            <FadeInUp key={e.exerciseId} delay={80 + i * 70} style={[styles.row, i > 0 && styles.rowDivider]}>
               <Pressable
                 onPress={onOpenExercise}
                 style={styles.rowText}
@@ -75,18 +89,26 @@ export function TodayChecklist({
                 <Text style={[styles.name, done && styles.nameDone]}>{name}</Text>
                 <Text style={styles.summary}>{setSummary(e)}</Text>
               </Pressable>
-              <Pressable
-                onPress={() => onToggle(e.exerciseId, !done)}
+              <PressScale
+                onPress={() => {
+                  haptic.tap();
+                  onToggle(e.exerciseId, !done);
+                }}
+                pressedScale={0.9}
                 hitSlop={8}
                 accessibilityRole="checkbox"
                 accessibilityState={{ checked: done }}
                 accessibilityLabel={`${name} listo`}
-                style={({ pressed }) => [styles.ready, done && styles.readyDone, pressed && { opacity: 0.7 }]}
+                style={[styles.ready, done && styles.readyDone]}
               >
-                {done && <Ionicons name="checkmark" size={16} color={colors.card} />}
+                {done && (
+                  <Pop visible={done}>
+                    <Ionicons name="checkmark" size={16} color={colors.card} />
+                  </Pop>
+                )}
                 <Text style={[styles.readyText, done && styles.readyTextDone]}>Listo</Text>
-              </Pressable>
-            </View>
+              </PressScale>
+            </FadeInUp>
           );
         })}
       </View>

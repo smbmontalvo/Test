@@ -14,6 +14,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { showAlert } from '../components/Dialog';
+import { FadeInUp, haptic, PressScale } from '../components/motion';
 import { ProfileButton } from '../components/ProfileButton';
 import { Button, Card, EmptyState, IconButton } from '../components/ui';
 import { getExercise } from '../data/exercises';
@@ -43,7 +44,10 @@ export default function ActiveWorkoutScreen() {
 
   const restLeft = restEndsAt ? Math.ceil((restEndsAt - now) / 1000) : 0;
   useEffect(() => {
-    if (restEndsAt && restLeft <= 0) setRestEndsAt(null);
+    if (restEndsAt && restLeft <= 0) {
+      haptic.success();
+      setRestEndsAt(null);
+    }
   }, [restEndsAt, restLeft]);
 
   if (!active) {
@@ -204,20 +208,26 @@ export default function ActiveWorkoutScreen() {
                     placeholderTextColor={colors.muted}
                     style={[styles.input, styles.colInput]}
                   />
-                  <Pressable
-                    onPress={() => toggleDone(exIndex, setIndex)}
+                  <PressScale
+                    pressedScale={0.85}
+                    onPress={() => {
+                      haptic.tap();
+                      toggleDone(exIndex, setIndex);
+                    }}
+                    accessibilityRole="checkbox"
+                    accessibilityState={{ checked: s.done }}
                     accessibilityLabel={`Marcar serie ${setIndex + 1} como hecha`}
                     style={[styles.check, s.done && styles.checkDone, styles.colAction]}
                   >
                     <Ionicons name="checkmark" size={20} color={s.done ? colors.primaryText : colors.muted} />
-                  </Pressable>
+                  </PressScale>
                 </View>
               ))}
 
-              <Pressable onPress={() => addSet(exIndex)} hitSlop={8} style={styles.addSet}>
+              <PressScale onPress={() => addSet(exIndex)} hitSlop={8} style={styles.addSet}>
                 <Ionicons name="add" size={15} color={colors.accent} />
                 <Text style={styles.addSetText}>Añadir serie</Text>
-              </Pressable>
+              </PressScale>
             </Card>
           );
         })}
@@ -237,7 +247,7 @@ export default function ActiveWorkoutScreen() {
       </ScrollView>
 
       {restEndsAt && (
-        <View style={[styles.rest, { paddingBottom: insets.bottom + spacing.md }]}>
+        <FadeInUp distance={60} style={[styles.rest, { paddingBottom: insets.bottom + spacing.md }]}>
           <Ionicons name="timer-outline" size={22} color={colors.primaryText} />
           <Text style={styles.restText}>Descanso {formatClock(restLeft)}</Text>
           <Pressable onPress={() => setRestEndsAt(Math.max(Date.now(), restEndsAt - 15000))} style={styles.restBtn}>
@@ -249,7 +259,7 @@ export default function ActiveWorkoutScreen() {
           <Pressable onPress={() => setRestEndsAt(null)} style={styles.restBtn}>
             <Text style={styles.restBtnText}>Saltar</Text>
           </Pressable>
-        </View>
+        </FadeInUp>
       )}
     </KeyboardAvoidingView>
   );
