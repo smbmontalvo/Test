@@ -3,17 +3,16 @@ import { router } from 'expo-router';
 import type { ComponentProps } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { TickBar } from '../components/TickBar';
 import { Button, Card } from '../components/ui';
 import { getExercise } from '../data/exercises';
 import { useGym } from '../store/GymContext';
-import { colors, radius, spacing } from '../theme';
+import { colors, muscleColors, radius, spacing } from '../theme';
 import { exerciseProgress, recordsBroken, type ExerciseProgress } from '../utils/progress';
 import { hasSchedule, todayPlan } from '../utils/schedule';
 import { formatLongDate, formatNumber, formatWeight, weekStreak, workoutVolume } from '../utils/stats';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
-
-const CHART_HEIGHT = 64;
 
 const HARD_DAY_TIPS: { icon: IconName; text: string }[] = [
   { icon: 'timer-outline', text: 'Haz una versión corta. 20 minutos también cuentan y mantienen el hábito.' },
@@ -50,6 +49,8 @@ export default function EncouragementScreen() {
   const progress = exerciseProgress(history);
   const improved = progress.filter((p) => p.gain > 0);
   const top = improved[0];
+  // One shared scale for all bars: the track is the top gain rounded up to the next 25%.
+  const scaleMax = top ? Math.max(0.25, Math.ceil(top.gainPct / 0.25) * 0.25) : 0.25;
   const records = recordsBroken(history);
   const streak = weekStreak(history);
   const firstWorkout = history[history.length - 1];
@@ -94,12 +95,24 @@ export default function EncouragementScreen() {
           <Text style={styles.sectionTitle} accessibilityRole="header">
             En lo que más has mejorado
           </Text>
-          <Text style={styles.sectionHint}>Tu mejor serie en cada sesión, del primer día a hoy.</Text>
-          <View style={{ gap: spacing.md }}>
-            {improved.slice(0, 4).map((p) => (
-              <ProgressCard key={p.exerciseId} progress={p} />
-            ))}
-          </View>
+          <Text style={styles.sectionHint}>Cuánto ha subido tu mejor serie desde el primer día.</Text>
+          <Card style={{ gap: spacing.xl }}>
+            {improved.slice(0, 4).map((p, i) => {
+              const exercise = getExercise(p.exerciseId);
+              return (
+                <TickBar
+                  key={p.exerciseId}
+                  fraction={p.gainPct / scaleMax}
+                  percent={Math.round(p.gainPct * 100)}
+                  color={exercise ? muscleColors[exercise.muscle] : colors.accent}
+                  label={exercise?.name ?? p.exerciseId}
+                  detail={`${exercise?.muscle ?? ''} · ${unitLabel(p, p.first)} → ${unitLabel(p, p.latest)}`}
+                  delay={i * 180}
+                />
+              );
+            })}
+            <Text style={styles.scaleNote}>Barra completa = +{Math.round(scaleMax * 100)}% de mejora</Text>
+          </Card>
         </>
       )}
 
@@ -138,50 +151,6 @@ function Total({ icon, value, label }: { icon: IconName; value: string; label: s
         <Ionicons name={icon} size={20} color={colors.accent} />
         <Text style={styles.totalValue}>{value}</Text>
         <Text style={styles.totalLabel}>{label}</Text>
-      </View>
-    </Card>
-  );
-}
-
-function ProgressCard({ progress: p }: { progress: ExerciseProgress }) {
-  const name = getExercise(p.exerciseId)?.name ?? p.exerciseId;
-  const max = Math.max(...p.values);
-  const pct = Math.round(p.gainPct * 100);
-
-  return (
-    <Card style={{ gap: spacing.md }}>
-      <View style={styles.progressHeader}>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.progressName}>{name}</Text>
-          <Text style={styles.progressRange}>
-            {unitLabel(p, p.first)} <Text style={styles.arrow}>→</Text>{' '}
-            <Text style={styles.strong}>{unitLabel(p, p.latest)}</Text>
-          </Text>
-        </View>
-        <View style={styles.gainPill}>
-          <Ionicons name="arrow-up" size={14} color={colors.accent} />
-          <Text style={styles.gainText}>{pct}%</Text>
-        </View>
-      </View>
-
-      {/* Bars grow from zero so the change is shown at its true size. */}
-      <View
-        style={styles.chart}
-        accessible
-        accessibilityLabel={`${name}, mejor serie por sesión: ${p.values.map((v) => unitLabel(p, v)).join(', ')}`}
-      >
-        {p.values.map((v, i) => (
-          <View key={i} style={styles.barSlot}>
-            <View style={[styles.bar, { height: Math.max(4, (v / max) * CHART_HEIGHT) }]} />
-          </View>
-        ))}
-      </View>
-      <View style={styles.chartAxis}>
-        <Text style={styles.axisText}>Primer día</Text>
-        <Text style={styles.axisText}>
-          {p.values.length} {p.values.length === 1 ? 'sesión' : 'sesiones'}
-        </Text>
-        <Text style={styles.axisText}>Hoy</Text>
       </View>
     </Card>
   );
@@ -226,39 +195,7 @@ const styles = StyleSheet.create({
   sectionTitle: { color: colors.text, fontSize: 20, fontWeight: '800', marginTop: spacing.lg },
   sectionHint: { color: colors.muted, fontSize: 14, marginTop: -spacing.xs },
 
-  progressHeader: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md },
-  progressName: { color: colors.text, fontSize: 17, fontWeight: '800' },
-  progressRange: { color: colors.muted, fontSize: 15, marginTop: 2, fontVariant: ['tabular-nums'] },
-  arrow: { color: colors.muted },
-  gainPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-    backgroundColor: colors.accentSoft,
-    borderRadius: radius.pill,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-  },
-  gainText: { color: colors.accent, fontWeight: '800', fontSize: 14 },
-
-  chart: {
-    height: CHART_HEIGHT,
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: 6,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  barSlot: { flex: 1, alignItems: 'center', justifyContent: 'flex-end' },
-  bar: {
-    width: '100%',
-    maxWidth: 24,
-    backgroundColor: colors.accent,
-    borderTopLeftRadius: 4,
-    borderTopRightRadius: 4,
-  },
-  chartAxis: { flexDirection: 'row', justifyContent: 'space-between', marginTop: -spacing.xs },
-  axisText: { color: colors.muted, fontSize: 12 },
+  scaleNote: { color: colors.muted, fontSize: 12 },
 
   tip: { flexDirection: 'row', gap: spacing.md, alignItems: 'flex-start' },
   tipText: { flex: 1, color: colors.text, fontSize: 15, lineHeight: 21 },

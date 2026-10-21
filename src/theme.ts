@@ -22,6 +22,18 @@ export const colors = {
   success: '#2F9E6B',
 };
 
+// Chart colors by muscle group: validated categorical palette (fixed order,
+// colorblind-safe adjacent pairs). Labels always accompany the color.
+export const muscleColors = {
+  Pecho: '#2a78d6',
+  Espalda: '#eb6834',
+  Piernas: '#1baf7a',
+  Hombros: '#eda100',
+  Bíceps: '#e87ba4',
+  Tríceps: '#008300',
+  Core: '#6250d6',
+} as const;
+
 export const spacing = {
   xs: 4,
   sm: 8,
