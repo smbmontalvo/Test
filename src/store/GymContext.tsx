@@ -2,9 +2,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 
-import { DEFAULT_ROUTINES } from '../data/exercises';
+import { DEFAULT_ROUTINES, setCustomExercises } from '../data/exercises';
 import { colors } from '../theme';
-import type { GymState, Profile, Routine, SetEntry, Workout, WorkoutExercise } from '../types';
+import type { Exercise, GymState, MuscleGroup, Profile, Routine, SetEntry, Workout, WorkoutExercise } from '../types';
 import { isSameDay, newId } from '../utils/stats';
 
 const STORAGE_KEY = 'gymapp:state:v1';
@@ -15,7 +15,10 @@ const initialState: GymState = {
   routines: DEFAULT_ROUTINES,
   history: [],
   active: null,
+  customExercises: [],
 };
+
+export type NewExercise = { name: string; muscle: MuscleGroup; equipment: string };
 
 type GymContextValue = GymState & {
   updateProfile: (patch: Partial<Profile>) => void;
@@ -30,6 +33,10 @@ type GymContextValue = GymState & {
   discardWorkout: () => void;
   closeStaleWorkout: (now: number) => void;
   deleteWorkout: (id: string) => void;
+  // Returns the new exercise id ("custom-…").
+  addCustomExercise: (input: NewExercise) => string;
+  // Hides the exercise and removes it from routines; past workouts keep its name.
+  deleteCustomExercise: (id: string) => void;
 };
 
 const GymContext = createContext<GymContextValue | null>(null);
@@ -199,6 +206,23 @@ export function GymProvider({ children }: { children: ReactNode }) {
     setState((s) => ({ ...s, history: s.history.filter((w) => w.id !== id) }));
   }, []);
 
+  const addCustomExercise = useCallback(({ name, muscle, equipment }: NewExercise) => {
+    const id = `custom-${newId()}`;
+    const exercise: Exercise = { id, name: name.trim(), muscle, equipment: equipment.trim(), custom: true };
+    setState((s) => ({ ...s, customExercises: [...s.customExercises, exercise] }));
+    return id;
+  }, []);
+
+  const deleteCustomExercise = useCallback((id: string) => {
+    setState((s) => ({
+      ...s,
+      customExercises: s.customExercises.map((e) => (e.id === id ? { ...e, deleted: true } : e)),
+      routines: s.routines.map((r) =>
+        r.exerciseIds.includes(id) ? { ...r, exerciseIds: r.exerciseIds.filter((x) => x !== id) } : r,
+      ),
+    }));
+  }, []);
+
   const value = useMemo<GymContextValue>(
     () => ({
       ...state,
@@ -214,6 +238,8 @@ export function GymProvider({ children }: { children: ReactNode }) {
       discardWorkout,
       closeStaleWorkout,
       deleteWorkout,
+      addCustomExercise,
+      deleteCustomExercise,
     }),
     [
       state,
@@ -229,8 +255,14 @@ export function GymProvider({ children }: { children: ReactNode }) {
       discardWorkout,
       closeStaleWorkout,
       deleteWorkout,
+      addCustomExercise,
+      deleteCustomExercise,
     ],
   );
+
+  // Keep the static exercise lookup in sync before any child renders, so
+  // getExercise() resolves custom ids everywhere without extra wiring.
+  setCustomExercises(state.customExercises);
 
   if (!loaded) {
     return (

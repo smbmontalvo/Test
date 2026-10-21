@@ -12,6 +12,11 @@ export type Exercise = {
   name: string;
   muscle: MuscleGroup;
   equipment: string;
+  // Created by the user (stored in GymState.customExercises, id "custom-…").
+  custom?: true;
+  // A custom exercise the user removed: hidden from lists but still resolvable
+  // so old workouts keep showing its name.
+  deleted?: true;
 };
 
 export type Routine = {
@@ -56,4 +61,5 @@ export type GymState = {
   routines: Routine[];
   history: Workout[];
   active: Workout | null;
+  customExercises: Exercise[];
 };

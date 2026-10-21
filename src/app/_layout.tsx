@@ -27,6 +27,7 @@ export default function RootLayout() {
         <Stack.Screen name="perfil" options={{ title: 'Tu perfil', presentation: 'modal', headerRight: () => null }} />
         <Stack.Screen name="animo" options={{ title: 'Tu progreso' }} />
         <Stack.Screen name="elegir-ejercicio" options={{ title: 'Añadir ejercicio', presentation: 'modal' }} />
+        <Stack.Screen name="nuevo-ejercicio" options={{ title: 'Nuevo ejercicio', presentation: 'modal' }} />
       </Stack>
       <DialogHost />
     </GymProvider>
