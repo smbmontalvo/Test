@@ -5,6 +5,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { WEEK_DAYS } from '../../components/DayPicker';
 import { Burst, FadeInUp, haptic, Pop, PressScale } from '../../components/motion';
+import { CardioWeekSummary } from '../../components/CardioWeekSummary';
 import { TodayChecklist } from '../../components/TodayChecklist';
 import { Button, Card } from '../../components/ui';
 import { getExercise } from '../../data/exercises';
@@ -12,6 +13,7 @@ import { useGym } from '../../store/GymContext';
 import { colors, radius, spacing } from '../../theme';
 import type { Workout } from '../../types';
 import { useToday } from '../../hooks/useToday';
+import { cardioWeek } from '../../utils/cardio';
 import { hasSchedule, nextPlanned, todayPlan } from '../../utils/schedule';
 import {
   completedSets,
@@ -44,7 +46,8 @@ function bestSets(w: Workout, limit: number) {
 
 export default function HomeScreen() {
   const inset = useScreenInsets();
-  const { profile, history, routines, active, startWorkout, setExerciseDone, closeStaleWorkout } = useGym();
+  const { profile, history, routines, active, cardio, cardioGoal, startWorkout, setExerciseDone, closeStaleWorkout } =
+    useGym();
 
   const now = useToday();
   // At midnight, close yesterday's unfinished workout so today's list shows.
@@ -177,7 +180,18 @@ export default function HomeScreen() {
       )}
       </FadeInUp>
 
-      <FadeInUp delay={160}>
+      {/* Read-only cardio widget: just the week at a glance, no actions. */}
+      <FadeInUp delay={140}>
+        <Card style={styles.cardioWidget}>
+          <View style={styles.widgetHeader}>
+            <Ionicons name="pulse" size={16} color={colors.accent} />
+            <Text style={styles.widgetEyebrow}>Cardio esta semana</Text>
+          </View>
+          <CardioWeekSummary week={cardioWeek(cardio, now)} goal={cardioGoal} today={today} />
+        </Card>
+      </FadeInUp>
+
+      <FadeInUp delay={200}>
         <OptionRow
           icon="heart"
           title="Me estoy desanimando"
@@ -189,7 +203,7 @@ export default function HomeScreen() {
       </FadeInUp>
 
       {last && (
-        <FadeInUp delay={240} style={{ gap: spacing.md }}>
+        <FadeInUp delay={260} style={{ gap: spacing.md }}>
           <Text style={styles.sectionTitle} accessibilityRole="header">
             Último entrenamiento
           </Text>
@@ -425,6 +439,15 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
     gap: spacing.xs,
     marginTop: spacing.sm,
+  },
+  cardioWidget: { gap: spacing.md, borderRadius: 24, padding: spacing.xl },
+  widgetHeader: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  widgetEyebrow: {
+    color: colors.accent,
+    fontSize: 13,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
   },
   doneIconWrap: { alignSelf: 'flex-start', marginBottom: spacing.sm },
   doneIcon: {

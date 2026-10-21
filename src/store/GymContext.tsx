@@ -4,7 +4,7 @@ import { ActivityIndicator, View } from 'react-native';
 
 import { DEFAULT_ROUTINES, setCustomExercises } from '../data/exercises';
 import { colors } from '../theme';
-import type { Exercise, GymState, MuscleGroup, Profile, Routine, SetEntry, Workout, WorkoutExercise } from '../types';
+import type { CardioSession, Exercise, GymState, MuscleGroup, Profile, Routine, SetEntry, Workout, WorkoutExercise } from '../types';
 import { isSameDay, newId } from '../utils/stats';
 
 const STORAGE_KEY = 'gymapp:state:v1';
@@ -16,6 +16,8 @@ const initialState: GymState = {
   history: [],
   active: null,
   customExercises: [],
+  cardio: [],
+  cardioGoal: 150,
 };
 
 export type NewExercise = { name: string; muscle: MuscleGroup; equipment: string };
@@ -37,6 +39,9 @@ type GymContextValue = GymState & {
   addCustomExercise: (input: NewExercise) => string;
   // Hides the exercise and removes it from routines; past workouts keep its name.
   deleteCustomExercise: (id: string) => void;
+  addCardio: (session: Omit<CardioSession, 'id'>) => void;
+  deleteCardio: (id: string) => void;
+  setCardioGoal: (minutes: number) => void;
 };
 
 const GymContext = createContext<GymContextValue | null>(null);
@@ -223,6 +228,21 @@ export function GymProvider({ children }: { children: ReactNode }) {
     }));
   }, []);
 
+  const addCardio = useCallback((session: Omit<CardioSession, 'id'>) => {
+    setState((s) => ({
+      ...s,
+      cardio: [{ ...session, id: newId() }, ...s.cardio].sort((a, b) => b.date - a.date),
+    }));
+  }, []);
+
+  const deleteCardio = useCallback((id: string) => {
+    setState((s) => ({ ...s, cardio: s.cardio.filter((c) => c.id !== id) }));
+  }, []);
+
+  const setCardioGoal = useCallback((minutes: number) => {
+    setState((s) => ({ ...s, cardioGoal: minutes }));
+  }, []);
+
   const value = useMemo<GymContextValue>(
     () => ({
       ...state,
@@ -240,6 +260,9 @@ export function GymProvider({ children }: { children: ReactNode }) {
       deleteWorkout,
       addCustomExercise,
       deleteCustomExercise,
+      addCardio,
+      deleteCardio,
+      setCardioGoal,
     }),
     [
       state,
@@ -257,6 +280,9 @@ export function GymProvider({ children }: { children: ReactNode }) {
       deleteWorkout,
       addCustomExercise,
       deleteCustomExercise,
+      addCardio,
+      deleteCardio,
+      setCardioGoal,
     ],
   );
 

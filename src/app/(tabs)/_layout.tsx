@@ -34,6 +34,7 @@ export default function TabsLayout() {
       >
         <Tabs.Screen name="index" options={{ title: 'Inicio', tabBarIcon: tabIcon('home') }} />
         <Tabs.Screen name="rutinas" options={{ title: 'Rutinas', tabBarIcon: tabIcon('barbell') }} />
+        <Tabs.Screen name="cardio" options={{ title: 'Cardio', tabBarIcon: tabIcon('pulse') }} />
         <Tabs.Screen name="ejercicios" options={{ title: 'Ejercicios', tabBarIcon: tabIcon('list') }} />
         <Tabs.Screen name="historial" options={{ title: 'Historial', tabBarIcon: tabIcon('stats-chart') }} />
       </Tabs>

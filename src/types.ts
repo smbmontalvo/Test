@@ -56,10 +56,23 @@ export type Profile = {
   photo?: string;
 };
 
+export type CardioType = 'run' | 'walk' | 'bike' | 'elliptical' | 'row' | 'swim' | 'hiit';
+
+export type CardioSession = {
+  id: string;
+  type: CardioType;
+  date: number;
+  minutes: number;
+  distanceKm?: number;
+};
+
 export type GymState = {
   profile: Profile;
   routines: Routine[];
   history: Workout[];
   active: Workout | null;
   customExercises: Exercise[];
+  cardio: CardioSession[];
+  // Weekly cardio target in minutes.
+  cardioGoal: number;
 };
