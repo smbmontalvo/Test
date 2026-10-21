@@ -59,7 +59,6 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
 
   const suggested = nextRoutine(routines, history);
-  const others = routines.filter((r) => r.id !== suggested?.id);
 
   const last = history[0];
   const previousSame = last?.routineId ? history.slice(1).find((w) => w.routineId === last.routineId) : undefined;
@@ -117,43 +116,11 @@ export default function HomeScreen() {
         tone="support"
       />
 
-      <Text style={styles.sectionTitle} accessibilityRole="header">
-        O elige otro
-      </Text>
-      <View style={styles.optionList}>
-        {others.map((r) => (
-          <OptionRow
-            key={r.id}
-            icon="play"
-            title={r.name}
-            subtitle={lastDoneText(r, history)}
-            accessibilityLabel={`Empezar ${r.name}. ${lastDoneText(r, history)}`}
-            onPress={() => startWorkout(r.id)}
-          />
-        ))}
-        <OptionRow
-          icon="add"
-          title="Entrenamiento libre"
-          subtitle="Sin rutina, añade ejercicios sobre la marcha"
-          onPress={() => startWorkout()}
-        />
-      </View>
-
       {last && (
         <>
-          <View style={styles.sectionRow}>
-            <Text style={styles.sectionTitle} accessibilityRole="header">
-              Último entrenamiento
-            </Text>
-            <Pressable
-              onPress={() => router.push('/historial')}
-              hitSlop={12}
-              accessibilityRole="link"
-              accessibilityLabel="Ver todo el historial"
-            >
-              <Text style={styles.link}>Ver historial</Text>
-            </Pressable>
-          </View>
+          <Text style={styles.sectionTitle} accessibilityRole="header">
+            Último entrenamiento
+          </Text>
           <Pressable
             onPress={() => router.push(`/workout/${last.id}`)}
             accessibilityRole="button"
@@ -198,11 +165,6 @@ export default function HomeScreen() {
                     </Text>
                   </View>
                 ))}
-              </View>
-
-              <View style={styles.cardFooter}>
-                <Text style={styles.link}>Ver detalle</Text>
-                <Ionicons name="chevron-forward" size={16} color={colors.accent} />
               </View>
             </Card>
           </Pressable>
@@ -349,11 +311,6 @@ function routineMeta(r: Routine, history: Workout[]): string {
   return parts.join(' · ');
 }
 
-function lastDoneText(r: Routine, history: Workout[]): string {
-  const last = history.find((w) => w.routineId === r.id);
-  return last ? `Última vez: ${formatRelativeDay(last.startedAt).toLowerCase()}` : 'Aún no la has hecho';
-}
-
 function capitalize(s: string) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
@@ -383,11 +340,8 @@ const styles = StyleSheet.create({
   heroDetail: { color: colors.primaryText, fontSize: 15, opacity: 0.75, marginTop: 2 },
   heroButton: { marginTop: spacing.lg },
 
-  sectionRow: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' },
   sectionTitle: { color: colors.text, fontSize: 20, fontWeight: '800', marginTop: spacing.lg },
-  link: { color: colors.accent, fontSize: 15, fontWeight: '700' },
 
-  optionList: { gap: spacing.sm },
   option: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -448,15 +402,6 @@ const styles = StyleSheet.create({
   bestRow: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing.md },
   bestName: { color: colors.text, fontSize: 15, flex: 1 },
   bestValue: { color: colors.text, fontSize: 15, fontWeight: '700', fontVariant: ['tabular-nums'] },
-  cardFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    gap: 2,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.border,
-    paddingTop: spacing.md,
-  },
 
   weekCard: { gap: spacing.md },
   weekRow: { flexDirection: 'row', justifyContent: 'space-between' },
