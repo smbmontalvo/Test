@@ -13,6 +13,9 @@ export const colors = {
   // Soft tints behind button labels.
   accentSoft: '#ECFCCB',
   accentBorder: '#D3EDA6',
+  // Warm tone for the encouragement entry point, distinct from actions.
+  support: '#B4442A',
+  supportSoft: '#FDEEE8',
   danger: '#E5484D',
   dangerText: '#C62A2F',
   dangerSoft: '#FDECEC',

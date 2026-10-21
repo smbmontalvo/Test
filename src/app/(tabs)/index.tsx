@@ -10,6 +10,7 @@ import { useStartWorkout } from '../../hooks/useStartWorkout';
 import { useGym } from '../../store/GymContext';
 import { colors, radius, spacing } from '../../theme';
 import type { Routine, Workout } from '../../types';
+import { nextRoutine } from '../../utils/progress';
 import {
   completedSets,
   formatDuration,
@@ -38,14 +39,6 @@ const DAYS = [
 ];
 
 const duration = (w: Workout) => (w.finishedAt ?? w.startedAt) - w.startedAt;
-
-// Rotate through routines: suggest the one after the last routine trained.
-function nextRoutine(routines: Routine[], history: Workout[]): Routine | undefined {
-  const last = history.find((w) => routines.some((r) => r.id === w.routineId));
-  if (!last) return routines[0];
-  const i = routines.findIndex((r) => r.id === last.routineId);
-  return routines[(i + 1) % routines.length];
-}
 
 function averageDuration(history: Workout[], routineId: string): number | null {
   const past = history.filter((w) => w.routineId === routineId && w.finishedAt);
@@ -114,6 +107,15 @@ export default function HomeScreen() {
           onPress={() => startWorkout(suggested.id)}
         />
       ) : null}
+
+      <OptionRow
+        icon="heart"
+        title="Me estoy desanimando"
+        subtitle="Mira todo lo que has mejorado"
+        accessibilityLabel="Me estoy desanimando. Ver un resumen de cómo has mejorado"
+        onPress={() => router.push('/animo')}
+        tone="support"
+      />
 
       <Text style={styles.sectionTitle} accessibilityRole="header">
         O elige otro
@@ -302,22 +304,24 @@ function OptionRow({
   subtitle,
   accessibilityLabel,
   onPress,
+  tone = 'default',
 }: {
   icon: IconName;
   title: string;
   subtitle: string;
   accessibilityLabel?: string;
   onPress: () => void;
+  tone?: 'default' | 'support';
 }) {
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? `${title}. ${subtitle}`}
-      style={({ pressed }) => [styles.option, pressed && { opacity: 0.7 }]}
+      style={({ pressed }) => [styles.option, tone === 'support' && styles.optionSupport, pressed && { opacity: 0.7 }]}
     >
-      <View style={styles.optionIcon}>
-        <Ionicons name={icon} size={20} color={colors.accent} />
+      <View style={[styles.optionIcon, tone === 'support' && styles.optionIconSupport]}>
+        <Ionicons name={icon} size={20} color={tone === 'support' ? colors.support : colors.accent} />
       </View>
       <View style={{ flex: 1 }}>
         <Text style={styles.optionTitle}>{title}</Text>
@@ -404,6 +408,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  optionSupport: { backgroundColor: colors.supportSoft, borderColor: colors.supportSoft },
+  optionIconSupport: { backgroundColor: colors.card },
   optionTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
   optionSubtitle: { color: colors.muted, fontSize: 14, marginTop: 2 },
 
