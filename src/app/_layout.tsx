@@ -2,7 +2,6 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
 import { DialogHost } from '../components/Dialog';
-import { GlassHeader } from '../components/Glass';
 import { ProfileButton } from '../components/ProfileButton';
 import { GymProvider } from '../store/GymContext';
 import { colors } from '../theme';
@@ -14,7 +13,7 @@ export default function RootLayout() {
       <Stack
         screenOptions={{
           headerTransparent: true,
-          headerBackground: () => <GlassHeader />,
+          headerStyle: { backgroundColor: 'transparent' },
           headerTintColor: colors.text,
           headerShadowVisible: false,
           headerBackButtonDisplayMode: 'minimal',

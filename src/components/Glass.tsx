@@ -11,8 +11,3 @@ export function GlassFill({ tint, style }: { tint: string; style?: StyleProp<Vie
     </View>
   );
 }
-
-// Header background for every screen: translucent instead of a solid band.
-export function GlassHeader() {
-  return <GlassFill tint="rgba(244,245,247,0.55)" />;
-}

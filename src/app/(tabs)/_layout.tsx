@@ -3,7 +3,6 @@ import { Tabs } from 'expo-router';
 import { useState, type ComponentProps } from 'react';
 
 import { FloatingTabBar } from '../../components/FloatingTabBar';
-import { GlassHeader } from '../../components/Glass';
 import { ProfileButton } from '../../components/ProfileButton';
 import { TabBarSpaceContext } from '../../hooks/useScreenInsets';
 import { colors } from '../../theme';
@@ -24,7 +23,7 @@ export default function TabsLayout() {
         tabBar={(props) => <FloatingTabBar {...props} onHeight={setTabBarSpace} />}
         screenOptions={{
           headerTransparent: true,
-          headerBackground: () => <GlassHeader />,
+          headerStyle: { backgroundColor: 'transparent' },
           headerTintColor: colors.text,
           headerShadowVisible: false,
           headerTitleStyle: { fontWeight: '800' },
