@@ -14,6 +14,8 @@ export default function RootLayout() {
         screenOptions={{
           headerTransparent: true,
           headerStyle: { backgroundColor: 'transparent' },
+          // No titles in the header on any screen: only back arrow and profile.
+          headerTitle: '',
           headerTintColor: colors.text,
           headerShadowVisible: false,
           headerBackButtonDisplayMode: 'minimal',

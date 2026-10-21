@@ -24,6 +24,7 @@ export default function TabsLayout() {
         screenOptions={{
           headerTransparent: true,
           headerStyle: { backgroundColor: 'transparent' },
+          headerTitle: '',
           headerTintColor: colors.text,
           headerShadowVisible: false,
           headerTitleStyle: { fontWeight: '800' },
@@ -31,7 +32,7 @@ export default function TabsLayout() {
           headerRight: () => <ProfileButton />,
         }}
       >
-        <Tabs.Screen name="index" options={{ title: 'Inicio', headerTitle: '', tabBarIcon: tabIcon('home') }} />
+        <Tabs.Screen name="index" options={{ title: 'Inicio', tabBarIcon: tabIcon('home') }} />
         <Tabs.Screen name="rutinas" options={{ title: 'Rutinas', tabBarIcon: tabIcon('barbell') }} />
         <Tabs.Screen name="ejercicios" options={{ title: 'Ejercicios', tabBarIcon: tabIcon('list') }} />
         <Tabs.Screen name="historial" options={{ title: 'Historial', tabBarIcon: tabIcon('stats-chart') }} />

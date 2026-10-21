@@ -136,7 +136,6 @@ export default function ActiveWorkoutScreen() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <Stack.Screen
         options={{
-          title: formatClock((now - active.startedAt) / 1000),
           headerRight: () => (
             <View style={styles.headerRight}>
               <Pressable onPress={finish} hitSlop={8} style={styles.finishButton}>
@@ -157,9 +156,13 @@ export default function ActiveWorkoutScreen() {
           multiline
           submitBehavior="blurAndSubmit"
         />
-        <Text style={styles.summary}>
-          {completedSets(active)} series · {formatNumber(workoutVolume(active))} kg
-        </Text>
+        <View style={styles.summaryRow}>
+          <Ionicons name="timer-outline" size={16} color={colors.muted} />
+          <Text style={styles.summary} accessibilityLabel={`Tiempo ${formatClock((now - active.startedAt) / 1000)}`}>
+            {formatClock((now - active.startedAt) / 1000)} · {completedSets(active)} series ·{' '}
+            {formatNumber(workoutVolume(active))} kg
+          </Text>
+        </View>
 
         {active.exercises.map((e, exIndex) => {
           const ex = getExercise(e.exerciseId);
@@ -264,7 +267,8 @@ const styles = StyleSheet.create({
   },
   finishText: { color: colors.accent, fontWeight: '700', fontSize: 14 },
   title: { color: colors.text, fontSize: 24, fontWeight: '800', padding: 0 },
-  summary: { color: colors.muted, marginTop: 4, marginBottom: spacing.lg },
+  summaryRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4, marginBottom: spacing.lg },
+  summary: { color: colors.muted, fontVariant: ['tabular-nums'] },
   exCard: { marginBottom: spacing.md, paddingHorizontal: spacing.md },
   exHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.sm },
   exName: { color: colors.text, fontSize: 17, fontWeight: '700' },
